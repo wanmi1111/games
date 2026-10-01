@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>物理 · 逐项判定</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#141119;color:#eee;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:16px 14px 96px;line-height:1.6}
+.top{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:12px 16px;background:rgba(20,17,25,.96);border-bottom:1px solid #2b2633;font-size:14px;color:#b9b0c6;z-index:5}
+.hint{margin-top:56px;font-size:13px;color:#8e86a0;text-align:center}
+.q{margin-top:12px;font-size:16px;color:#fff;background:#1f1a29;border-left:3px solid #8a6bd1;padding:12px 14px;border-radius:8px}
+.opt{margin-top:12px;background:#1b1723;border:1px solid #2b2633;border-radius:10px;padding:12px}
+.opt.ok{border-color:#4caf7d;background:#15261e}
+.opt.no{border-color:#d16b6b;background:#291a1a}
+.row{display:flex;gap:8px;align-items:flex-start}
+.tag{color:#b39ddb;font-weight:700;min-width:20px}
+.txt{flex:1;font-size:15px}
+.btns{display:flex;gap:10px;margin-top:10px}
+.btns button{flex:1;padding:11px;border:1px solid #3d3550;background:#241e2e;color:#ddd;border-radius:9px;font-size:15px;font-family:inherit}
+.exp{margin-top:9px;font-size:13.5px;color:#c8bfd6;border-top:1px dashed #343040;padding-top:8px}
+.exp b{color:#ffd9a0}
+#next{position:fixed;bottom:18px;left:16px;right:16px;padding:15px;border:0;border-radius:12px;background:#8a6bd1;color:#fff;font-size:16px;font-weight:600;font-family:inherit;display:none;z-index:6}
+#end{display:none;padding-top:56px}
+#t2{font-size:46px;text-align:center;color:#ffd9e8;font-weight:300;margin-top:10px}
+#sub{text-align:center;color:#b9b0c6;font-size:14px;margin:8px 0 22px}
+h3{font-size:15px;color:#b39ddb;margin:18px 0 6px}
+#again{margin:22px auto 0;display:block;padding:13px 28px;border:0;border-radius:999px;background:#ffd9e8;color:#2a2035;font-size:15px;font-weight:600;font-family:inherit}
+</style>
+</head>
+<body>
+<div class="top"><span id="prog">第 1 / 5 题</span><span id="sc">得分 0 / 0</span></div>
+
+<div id="wrap">
+  <div class="hint">每个选项都判一次「对 / 错」，别跳 —— 这就是多选不漏选的办法 😼</div>
+</div>
+
+<div id="end">
+  <div id="t2">0 / 20</div>
+  <div id="sub"></div>
+  <h3>错题回顾</h3>
+  <div id="wrongs"></div>
+  <button id="again">再来一遍</button>
+</div>
+
+<button id="next">下一题 →</button>
+
+<script>
+var QS=[
+{q:'表头 Rg=100 Ω、满偏电流 Ig=3 mA，要把它改装成量程 0.6 A 的电流表。判断下列说法：',
+ o:[
+  {t:'应该并联一个电阻',a:true,e:'对。电流表要分流，并联电阻分走多余的电流（口诀：串压并流）。'},
+  {t:'并联电阻的阻值约为 0.5 Ω',a:true,e:'对。R = IgRg/(I−Ig) = (3×10⁻³×100)/(0.6−3×10⁻³) ≈ 0.5025 Ω。先写字母式，再代数。'},
+  {t:'应该串联一个电阻',a:false,e:'错。串联是分压，做成的是电压表。这个坑你上次踩过一次。'},
+  {t:'改装后电表的内阻比 Rg 小',a:true,e:'对。并联后总电阻比任一支路都小，≈0.5 Ω，远小于 100 Ω。'}
+]},
+{q:'电路：L₁ 与滑动变阻器 R 并联后，再与 L₂ 串联。电压表测路端电压，电流表测干路电流。滑片移动后接入电阻变大。判断：',
+ o:[
+  {t:'滑动变阻器接入电路的电阻变小',a:false,e:'错。题目明说接入电阻变大。动手前先确认滑片方向——上次就是这里判反的。'},
+  {t:'干路电流减小',a:true,e:'对。R↑ → 总电阻↑ → I = E/(R总+r) 变小。'},
+  {t:'路端电压增大',a:true,e:'对。U = E − Ir，I 变小，所以 U 变大。'},
+  {t:'灯泡 L₂ 变亮',a:false,e:'错。I 变小，L₂ 分压 U₂ = I·R₂ 变小 → L₂ 变暗。'}
+]},
+{q:'复兴号以恒定功率启动，速度由 v₀ 增大到最大速度 vₘ。判断：',
+ o:[
+  {t:'加速度逐渐减小',a:true,e:'对。F = P/v，v↑ → F↓ → a = (F−f)/m↓。'},
+  {t:'牵引力保持不变',a:false,e:'错。恒定功率时，牵引力随速度增大而减小。'},
+  {t:'达到最大速度时牵引力等于阻力',a:true,e:'对。此时 a = 0，F = f。'},
+  {t:'牵引力做的功等于动能变化量',a:false,e:'错。那是合力的功 ½mvₘ²−½mv₀²；牵引力的功还要加上阻力那份：½mvₘ²−½mv₀²+f·x。'}
+]},
+{q:'小球在竖直面内摆动，绳与竖直方向夹角为 θ。判断关于向心力的说法：',
+ o:[
+  {t:'小球受到重力、绳的拉力、向心力三个力',a:false,e:'错。向心力是效果力，不是单独受到的第三个力。'},
+  {t:'绳的拉力与重力沿绳方向分量的合力提供向心力',a:true,e:'对。F向 = T − mgcosθ。'},
+  {t:'合力的沿绳方向分量提供向心力',a:true,e:'对。与上一条是同一回事：先合成再投影 ＝ 先投影再相加，投影能穿过加法。'},
+  {t:'向心力大小等于 T − mgcosθ',a:true,e:'对。取指向圆心为正：T 指向圆心，mgcosθ 背离圆心。'}
+]},
+{q:'关于电场线与等势面，判断：',
+ o:[
+  {t:'电场线越密的地方，场强越大',a:true,e:'对。疏密表示场强大小。'},
+  {t:'沿电场线方向，电势逐渐降低',a:true,e:'对。这是电场线最基本的方向含义。'},
+  {t:'同一等势面上各点场强一定相同',a:false,e:'错。等势面上电势相同，但场强可以大小不同、方向不同。'},
+  {t:'电场线就是电荷在电场中的运动轨迹',a:false,e:'错。电场线不是轨迹，只在特定条件下才与轨迹重合。'}
+]}
+];
+
+var idx=0,total=0,right=0,wrongList=[],answered=0;
+function el(t,c,txt){var d=document.createElement(t);if(c)d.className=c;if(txt!=null)d.textContent=txt;return d;}
+
+function render(){
+  answered=0;
+  var q=QS[idx],wrap=document.getElementById('wrap');
+  wrap.innerHTML='';
+  wrap.appendChild(el('div','hint','每个选项都判一次「对 / 错」，别跳。'));
+  document.getElementById('prog').textContent='第 '+(idx+1)+' / '+QS.length+' 题';
+  document.getElementById('sc').textContent='得分 '+right+' / '+total;
+  wrap.appendChild(el('div','q',q.q));
+  q.o.forEach(function(op,i){
+    var d=el('div','opt');
+    var r=el('div','row');
+    r.appendChild(el('div','tag',String.fromCharCode(65+i)+'.'));
+    r.appendChild(el('div','txt',op.t));
+    d.appendChild(r);
+    var bs=el('div','btns');
+    var b1=el('button',null,'✔ 对'),b2=el('button',null,'✘ 错');
+    bs.appendChild(b1);bs.appendChild(b2);
+    d.appendChild(bs);
+    function pick(say){
+      if(d.dataset.lock)return;
+      d.dataset.lock='1';
+      var ok=(say===op.a),hit=(say?b1:b2);
+      b1.disabled=true;b2.disabled=true;
+      hit.style.background='#8a6bd1';hit.style.color='#fff';hit.style.borderColor='#8a6bd1';
+      d.classList.add(ok?'ok':'no');
+      var e=el('div','exp');
+      e.appendChild(el('b',null,(ok?'✔ 判对了　':'✘ 错了　')+'正确答案：'+(op.a?'对':'错')));
+      e.appendChild(el('div',null,op.e));
+      d.appendChild(e);
+      total++; if(ok){right++;} else {wrongList.push({t:op.t,e:op.e,a:op.a});}
+      answered++;
+      document.getElementById('sc').textContent='得分 '+right+' / '+total;
+      if(answered===q.o.length){
+        var nb=document.getElementById('next');
+        nb.textContent=(idx<QS.length-1)?'下一题 →':'看成绩 →';
+        nb.style.display='block';
+      }
+    }
+    b1.addEventListener('click',function(){pick(true);});
+    b2.addEventListener('click',function(){pick(false);});
+    wrap.appendChild(d);
+  });
+  window.scrollTo(0,0);
+}
+
+function showEnd(){
+  document.getElementById('wrap').style.display='none';
+  document.getElementById('next').style.display='none';
+  var e=document.getElementById('end');
+  e.style.display='block';
+  var pct=Math.round(right/total*100);
+  document.getElementById('t2').textContent=right+' / '+total;
+  document.getElementById('sub').textContent=(pct>=90)?'这就是你自己能纠正我的那个水平 😼':(pct>=70?'稳了，剩下的都是漏看漏选那点分':'没事，错的记住就值了 🫶');
+  var w=document.getElementById('wrongs');
+  w.innerHTML='';
+  if(!wrongList.length){w.appendChild(el('div','exp','全对，一个没错 ✅'));}
+  wrongList.forEach(function(o){
+    var d=el('div','opt no');
+    d.appendChild(el('div','txt','【'+o.t+'】应该是「'+(o.a?'对':'错')+'」'));
+    d.appendChild(el('div','exp',o.e));
+    w.appendChild(d);
+  });
+  window.scrollTo(0,0);
+}
+
+document.getElementById('next').addEventListener('click',function(){
+  document.getElementById('next').style.display='none';
+  if(idx<QS.length-1){idx++;render();}else{showEnd();}
+});
+document.getElementById('again').addEventListener('click',function(){
+  idx=0;total=0;right=0;wrongList=[];answered=0;
+  document.getElementById('end').style.display='none';
+  document.getElementById('wrap').style.display='block';
+  document.getElementById('next').style.display='none';
+  render();
+});
+render();
+</script>
+</body>
+</html>
