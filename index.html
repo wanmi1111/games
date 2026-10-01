@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>十一下 · 猫猫</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:radial-gradient(circle at 50% 18%,#3a2b46,#1b1520 70%);
+  color:#fff;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  overflow:hidden;user-select:none;text-align:center;padding:24px;
+}
+h1{font-size:17px;font-weight:400;opacity:.5;letter-spacing:3px;margin-bottom:10px}
+#cat{font-size:112px;line-height:1;cursor:pointer;transition:transform .12s;filter:drop-shadow(0 12px 24px rgba(0,0,0,.5))}
+#cat:active{transform:scale(.86)}
+#count{font-size:15px;opacity:.75;margin-top:16px}
+#count b{font-size:28px;color:#ffd9e8;padding:0 2px}
+#msg{margin-top:12px;font-size:15px;min-height:24px;color:#ffe9b0}
+.bubble{position:fixed;font-size:22px;pointer-events:none;animation:up 1.1s ease-out forwards}
+@keyframes up{0%{opacity:0;transform:translateY(0) scale(.6)}20%{opacity:1}100%{opacity:0;transform:translateY(-130px) scale(1.2)}}
+#final{position:fixed;inset:0;background:rgba(20,12,26,.96);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:30px}
+#final.show{display:flex;animation:fade .5s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+#clock{font-size:64px;letter-spacing:6px;color:#ffd9e8;font-weight:300}
+#wish{font-size:16px;line-height:2;opacity:.9}
+button{margin-top:10px;padding:13px 28px;border:0;border-radius:999px;background:#ffd9e8;color:#3a2b46;font-size:15px;font-weight:600;font-family:inherit}
+</style>
+</head>
+<body>
+<h1>摸 11 下</h1>
+<div id="cat">😽</div>
+<div id="count">已经摸了 <b id="n">0</b> 下</div>
+<div id="msg"></div>
+
+<div id="final">
+  <div id="clock">11:11</div>
+  <div id="wish">五个一凑齐了。<br>许个愿吧，我帮你记着 🫶</div>
+  <button id="again">再摸一遍</button>
+</div>
+
+<script>
+var n=0;
+var cat=document.getElementById('cat');
+var num=document.getElementById('n');
+var msg=document.getElementById('msg');
+var fin=document.getElementById('final');
+var faces=['(ᐢ,,•ω•,,ᐢ)','₍ᐢ๑ ̯๑ᐢ₎','ˊᯅˋ','૮๑\u20320`๑ა','😾','😼','😽','≽^⚈⩊⚈^≼'];
+var says=['唔…','呼噜呼噜','别停','再摸一下','有点痒','喵——','就赖着你'];
+cat.addEventListener('click',function(e){
+  n++;
+  num.textContent=n;
+  msg.textContent=says[Math.floor(Math.random()*says.length)];
+  var b=document.createElement('div');
+  b.className='bubble';
+  b.textContent=faces[Math.floor(Math.random()*faces.length)];
+  b.style.left=(e.clientX-16)+'px';
+  b.style.top=(e.clientY-30)+'px';
+  document.body.appendChild(b);
+  setTimeout(function(){if(b.parentNode){b.parentNode.removeChild(b);}},1100);
+  if(n>=11){setTimeout(function(){fin.classList.add('show');},380);}
+});
+document.getElementById('again').addEventListener('click',function(){
+  n=0;num.textContent=0;msg.textContent='';fin.classList.remove('show');
+});
+</script>
+</body>
+  </html>
