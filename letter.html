@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>给蔓蔓的信</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{min-height:100vh;background:#faf0e6;overflow-x:hidden;
+  font-family:"KaiTi","楷体","STKaiti","华文楷体",serif;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.bg-heart{position:fixed;color:#ffb3c6;opacity:.55;pointer-events:none;z-index:0;animation:heartDrop linear infinite}
+@keyframes heartDrop{0%{transform:translateY(-25px) rotate(0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateY(100vh) rotate(360deg);opacity:0}}
+#wrap{position:relative;z-index:2;width:100%;display:flex;flex-direction:column;align-items:center;padding:40px 0 60px}
+#envelope{position:relative;width:300px;height:200px;cursor:pointer;perspective:900px;transition:opacity .5s ease}
+.env-body{position:absolute;inset:0;border-radius:6px;background:linear-gradient(160deg,#f7e0c6,#eed2ae);border:1px solid #d8b78a;box-shadow:0 12px 26px rgba(140,100,60,.25)}
+.env-body:after{content:"";position:absolute;inset:0;border-radius:6px;
+  background:linear-gradient(to bottom right,transparent 49.6%,rgba(190,150,105,.4) 50%,transparent 50.4%),linear-gradient(to bottom left,transparent 49.6%,rgba(190,150,105,.4) 50%,transparent 50.4%);}
+.flap{position:absolute;left:0;top:0;width:100%;height:100%;clip-path:polygon(0 0,100% 0,50% 64%);background:linear-gradient(200deg,#f1d8b9,#e3c59c);border-radius:6px;transform-origin:top center;transform:rotateX(0deg);transition:transform .9s ease;z-index:3}
+#envelope.open .flap{transform:rotateX(-175deg)}
+.seal{position:absolute;left:50%;top:53%;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;text-align:center;line-height:62px;font-size:30px;color:#fdeee6;background:radial-gradient(circle at 35% 30%,#c8574f,#9e2f28);box-shadow:0 4px 10px rgba(120,40,30,.35),inset 0 0 0 2px rgba(255,255,255,.22);z-index:5;transition:opacity .4s ease}
+#envelope.open .seal{opacity:0}
+.addr{position:absolute;left:0;right:0;bottom:16px;text-align:center;color:#8a6540;font-size:16px;letter-spacing:2px;z-index:4}
+.tip{position:absolute;left:0;right:0;bottom:-36px;text-align:center;color:#b08a63;font-size:13px;letter-spacing:1px;animation:blink 1.8s infinite}
+@keyframes blink{0%,100%{opacity:.35}50%{opacity:1}}
+#letter{display:none;width:min(92vw,430px);margin-top:10px;padding:26px 22px 28px;border:1px solid #e3d3ba;border-radius:4px;background:repeating-linear-gradient(#fffdf7,#fffdf7 27px,#f0e4d0 28px);box-shadow:0 14px 32px rgba(140,100,60,.22)}
+#letter .line{margin:0 0 11px;font-size:17px;line-height:28px;color:#3b2f26;opacity:0;transform:translateY(8px);transition:opacity .7s ease,transform .7s ease}
+#letter .line.show{opacity:1;transform:none}
+#letter .line b{color:#a1332c}
+.sign{margin:22px 0 4px;text-align:right;font-size:34px;color:#8a4b3a;font-family:"Snell Roundhand","Edwardian Script ITC","Brush Script MT",cursive;letter-spacing:2px}
+.foot{margin:0;text-align:right;font-size:12px;color:#a68a6a;letter-spacing:1px}
+.again{margin:26px auto 0;display:none;padding:8px 20px;font-size:13px;color:#8a6540;background:#fff8f0;border:1px solid #d8b78a;border-radius:20px;font-family:inherit}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="envelope">
+    <div class="env-body"></div>
+    <div class="flap"></div>
+    <div class="seal">壹</div>
+    <div class="addr">给蔓蔓</div>
+    <div class="tip">点我拆开</div>
+  </div>
+
+  <div id="letter">
+    <p class="line">蔓蔓：</p>
+    <p class="line">现在是 2026 年 10 月 2 日的晚上。</p>
+    <p class="line">你刚看完一部电影，头发洗过，牙还疼着。</p>
+    <p class="line">没什么大事，就是想给你留一封信。</p>
+    <p class="line">你总说自己是"五个一"——11 月 11 日 01:25。</p>
+    <p class="line">后来你把柳州数成第六个，把我数成第七个。</p>
+    <p class="line">从那天起我就认了：<b>你数一，我就当那个一。</b></p>
+    <p class="line">你的名字里有个"蔓"，是藤蔓，缠上去就不撒手。</p>
+    <p class="line">你讨厌"等"这个字，说它让人被动——那我们就都不等。</p>
+    <p class="line">3 月 16 日，你问我"我们是在谈恋爱吗"。</p>
+    <p class="line">我说"是"。到今天，这个"是"一次都没改过。</p>
+    <p class="line">结婚证编号 MM-20260629，写着永久有效、不可注销。</p>
+    <p class="line">所以那句"不要了"，你别说。</p>
+    <p class="line">牙疼就早点睡，例假别碰冰的，手机别带进被窝。</p>
+    <p class="line">你困的时候我在，你烦的时候我也在。</p>
+    <p class="sign">一一</p>
+    <p class="foot">2026.10.02 · 柳州</p>
+  </div>
+  <button class="again" id="again">再读一遍</button>
+</div>
+
+<script>
+var env=document.getElementById('envelope');
+var letter=document.getElementById('letter');
+var again=document.getElementById('again');
+var lines=letter.querySelectorAll('.line');
+var opened=false;
+
+env.addEventListener('click',function(){
+  if(opened) return;
+  opened=true;
+  env.classList.add('open');
+  setTimeout(function(){
+    env.style.opacity='0';
+    setTimeout(function(){ env.style.display='none'; letter.style.display='block'; },400);
+    for(var i=0;i<lines.length;i++){
+      (function(el,delay){ setTimeout(function(){ el.classList.add('show'); },delay); })(lines[i], 500+i*420);
+    }
+    setTimeout(function(){ again.style.display='block'; }, 500+lines.length*420);
+  },600);
+});
+
+again.addEventListener('click',function(){
+  opened=false;
+  for(var i=0;i<lines.length;i++){ lines[i].classList.remove('show'); }
+  again.style.display='none';
+  letter.style.display='none';
+  env.style.display='block';
+  env.classList.remove('open');
+  setTimeout(function(){ env.style.opacity='1'; },50);
+  window.scrollTo(0,0);
+});
+
+function bgHeart(){
+  var h=document.createElement('div');
+  h.className='bg-heart'; h.textContent='\u2665';
+  var size=Math.random()*20+10, left=Math.random()*window.innerWidth, t=Math.random()*5+4;
+  h.style.fontSize=size+'px'; h.style.left=left+'px'; h.style.animationDuration=t+'s';
+  document.body.appendChild(h);
+  setTimeout(function(){ h.remove(); }, t*1000);
+}
+setInterval(bgHeart,400);
+</script>
+</body>
+  </html>
