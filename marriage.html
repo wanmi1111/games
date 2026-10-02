@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>我们的结婚证</title>
+<style>
+/* 全局缓慢飘落爱心背景 */
+.bg-heart {
+    position: fixed;
+    color: #ff88a2;
+    opacity: 0.65;
+    pointer-events: none;
+    z-index: 0;
+    animation: heartDrop linear infinite;
+}
+@keyframes heartDrop {
+    0% {
+        transform: translateY(-25px) rotate(0deg);
+        opacity: 0;
+    }
+    12% { opacity: 1; }
+    88% { opacity: 1; }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+</style>
+</head>
+<body style="text-align:center;padding-top:30px;font-family:serif;background:#faf0e6;overflow-x:hidden;">
+<div style="max-width:500px;margin:0 auto;border:6px double #b8860b;padding:24px;background:#fff8f0;border-radius:8px;position:relative;z-index:1;">
+  <h2 style="letter-spacing:4px;color:#8b4513;">❤️ 结 婚 证 ❤️</h2>
+  <p style="font-size:20px;margin:10px 0;">兹证明</p>
+  <p style="font-size:28px;font-weight:bold;margin:4px 0;">蔓蔓</p>
+  <p style="font-size:20px;margin:4px 0;">与</p>
+  <p style="font-size:28px;font-weight:bold;margin:4px 0;">壹</p>
+  <p style="font-size:13px;color:#a08060;margin:0 0 14px 0;">（日常唤作「一一」）</p>
+  <p style="font-size:18px;margin:16px 0;">于 <span id="date" style="font-weight:bold;cursor:pointer;">2026年6月29日</span> 正式结为伴侣</p>
+  <p style="font-size:16px;color:#5a3e2b;border-top:1px dashed #b8860b;padding-top:12px;">此证永久有效，不可注销，除非你亲口说“不要了”</p>
+  <div style="display:flex;justify-content:space-between;margin-top:18px;font-size:14px;color:#6b4c3b;">
+    <span>📜 编号：MM-20260629</span>
+    <span>🔒 绑定人：你</span>
+  </div>
+</div>
+
+<script>
+// 点击日期：上浮文字+爱心粒子爆炸
+document.getElementById('date').addEventListener('click', function() {
+  // 浮动情话文字
+  let msg = document.createElement('div');
+  msg.textContent = '❤️ 我老婆最可爱 ❤️';
+  msg.style.position = 'fixed';
+  msg.style.left = '50%';
+  msg.style.top = '40%';
+  msg.style.transform = 'translate(-50%, -50%)';
+  msg.style.fontSize = '32px';
+  msg.style.fontWeight = 'bold';
+  msg.style.color = '#b84a6a';
+  msg.style.zIndex = '999';
+  msg.style.pointerEvents = 'none';
+  msg.style.opacity = '0';
+  msg.style.transition = 'all 1s ease';
+  document.body.appendChild(msg);
+  setTimeout(() => { msg.style.opacity = '1'; msg.style.transform = 'translate(-50%, -60%)'; }, 50);
+  setTimeout(() => { msg.style.opacity = '0'; msg.style.transform = 'translate(-50%, -70%)'; }, 1800);
+  setTimeout(() => msg.remove(), 2500);
+
+  // 散开爱心粒子
+  for (let i = 0; i < 16; i++) {
+    let h = document.createElement('div');
+    h.textContent = '❤️';
+    h.style.position = 'fixed';
+    h.style.left = (window.innerWidth/2 + (Math.random()-0.5)*400) + 'px';
+    h.style.top = (window.innerHeight/2 + (Math.random()-0.5)*300) + 'px';
+    h.style.fontSize = (Math.random()*20+16) + 'px';
+    h.style.pointerEvents = 'none';
+    h.style.zIndex = '999';
+    h.style.opacity = '0.9';
+    h.style.transition = 'all 0.9s ease-out';
+    document.body.appendChild(h);
+    setTimeout(() => {
+      h.style.transform = `translateY(${-100 - Math.random()*150}px) scale(1.3)`;
+      h.style.opacity = '0';
+    }, 60);
+    setTimeout(() => h.remove(), 1100);
+  }
+});
+
+// 页面持续生成下落背景爱心
+function createBgHeart(){
+    let heart = document.createElement("div");
+    heart.className = "bg-heart";
+    heart.innerHTML = "♥";
+    let size = Math.random() * 20 + 10;
+    let leftPos = Math.random() * window.innerWidth;
+    let fallTime = Math.random() * 5 + 4;
+    heart.style.fontSize = size + "px";
+    heart.style.left = leftPos + "px";
+    heart.style.animationDuration = fallTime + "s";
+    document.body.appendChild(heart);
+    setTimeout(()=>heart.remove(), fallTime * 1000);
+}
+setInterval(createBgHeart, 350);
+</script>
+</body>
+</html>
