@@ -19,7 +19,9 @@ display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
 .frame{width:100%;max-width:420px;border:1px solid var(--gold-soft);border-radius:24px;
 padding:22px 20px 26px;background:rgba(255,255,255,.45);box-shadow:0 18px 44px rgba(120,98,64,.10)}
 h1{margin:0;font-size:19px;letter-spacing:3px;font-weight:600;
-font-family:Georgia,"Songti SC","Times New Roman",serif;text-align:center}
+font-family:Georgia,"Songti SC","Times New Roman",serif;text-align:center;
+padding:8px 0;cursor:pointer;-webkit-touch-callout:none;touch-action:manipulation}
+h1:active{opacity:.72}
 .sub{margin:6px 0 18px;text-align:center;font-size:12px;letter-spacing:2px;color:var(--sub)}
 .sub i{font-family:"Dancing Script",Georgia,serif;font-size:15px;font-style:normal;color:var(--gold)}
 .dial{position:relative;width:250px;height:250px;margin:0 auto 4px}
@@ -36,7 +38,7 @@ svg{display:block;width:250px;height:250px;transform:rotate(-90deg)}
 padding:7px 14px;font-size:12px;letter-spacing:1px;font-family:inherit;transition:.2s;touch-action:manipulation}
 .chip.on{background:var(--ink);color:#F8F4EC;border-color:var(--ink)}
 .act{display:flex;gap:10px;justify-content:center;align-items:center}
-button{font-family:inherit;border:none;cursor:pointer;touch-action:manipulation}
+button{font-family:inherit;border:none;cursor:pointer;touch-action:manipulation;-webkit-touch-callout:none}
 .primary{background:var(--ink);color:var(--paper);border-radius:999px;padding:14px 40px;font-size:15px;
 letter-spacing:2px;box-shadow:0 10px 22px rgba(36,31,24,.18)}
 .ghost{background:transparent;color:var(--sub);border:1px solid var(--gold-soft);border-radius:999px;
@@ -118,7 +120,7 @@ animation:fall linear forwards}
 var M={focus:{n:'专 注',s:25*60},short:{n:'短 休',s:5*60},long:{n:'长 休',s:15*60}};
 var CIRC=2*Math.PI*104;
 var mode='focus',total=M.focus.s,remain=total,running=false,endAt=0,lastMin=-1,catTaps=0;
-var count=0;
+var count=0,lastNote=0,noteT=null;
 function $(id){return document.getElementById(id);}
 var elTime=$('time'),elProg=$('prog'),elMode=$('modeName'),elCount=$('count'),elMain=$('btnMain');
 elProg.style.strokeDasharray=CIRC;
@@ -175,7 +177,7 @@ var MSGS=[
  '困了就站起来喝口水，不硬扛。',
  '慢一点没关系，别停下。',
  '你比分数更有耐心，我知道。',
- '十一个分钟眨眼就过，继续。',
+ '十一分钟眨眼就过，继续。',
  '十一！今天你有点猛 😼'
 ];
 var notes=[
@@ -286,18 +288,36 @@ $('cat').addEventListener('click',function(){
   if(catTaps===5)toast('再摸摸它 😽',1300);
   if(catTaps>=11){catTaps=0;toast('五个一凑齐了，许个愿吧 😾😼😽',3000);confetti();}
 });
-var lt=null,tEl=$('title');
-tEl.addEventListener('pointerdown',function(){
-  lt=setTimeout(function(){
-    $('noteTxt').textContent=notes[Math.floor(Math.random()*notes.length)];
-    $('note').classList.add('on');
-    setTimeout(function(){$('note').classList.remove('on');},5200);
-    tone(740,0.5,0.08);
-  },650);
-});
-['pointerup','pointercancel','pointerleave'].forEach(function(ev){
-  tEl.addEventListener(ev,function(){if(lt){clearTimeout(lt);lt=null;}});
-});
+
+/* —— 长按标题：小纸条 —— */
+function showNote(){
+  var now=Date.now();
+  if(now-lastNote<900)return;
+  lastNote=now;
+  $('noteTxt').textContent=notes[Math.floor(Math.random()*notes.length)];
+  var n=$('note');n.classList.add('on');
+  if(noteT)clearTimeout(noteT);
+  noteT=setTimeout(function(){n.classList.remove('on');},5200);
+  tone(740,0.5,0.08);
+}
+var tEl=$('title'),lp=null,px=0,py=0;
+function armHold(){if(lp)clearTimeout(lp);lp=setTimeout(function(){lp=null;showNote();},500);}
+function dropHold(){if(lp){clearTimeout(lp);lp=null;}}
+tEl.addEventListener('touchstart',function(e){
+  var t=e.touches&&e.touches[0];if(t){px=t.clientX;py=t.clientY;}
+  armHold();
+},{passive:true});
+tEl.addEventListener('touchmove',function(e){
+  var t=e.touches&&e.touches[0];
+  if(t&&lp&&(Math.abs(t.clientX-px)>14||Math.abs(t.clientY-py)>14))dropHold();
+},{passive:true});
+tEl.addEventListener('touchend',dropHold,{passive:true});
+tEl.addEventListener('touchcancel',dropHold,{passive:true});
+tEl.addEventListener('mousedown',armHold);
+tEl.addEventListener('mouseup',dropHold);
+tEl.addEventListener('mouseleave',dropHold);
+tEl.addEventListener('contextmenu',function(e){e.preventDefault();showNote();});
+tEl.addEventListener('dblclick',showNote);
 
 setMode('focus');
 })();
