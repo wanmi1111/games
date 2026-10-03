@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#F8F4EC">
+<title>蔓蔓的番茄钟 · 一一</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dancing-script@5/index.css">
+<style>
+:root{--paper:#F8F4EC;--paper2:#F2EBDD;--ink:#241F18;--sub:#8C8375;--gold:#B08A4A;--gold-soft:#E3D3B4;--red:#A6262B}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{
+background:radial-gradient(120% 90% at 50% -10%,#fffdf8 0%,rgba(255,253,248,0) 60%),
+linear-gradient(180deg,var(--paper) 0%,var(--paper2) 100%);
+color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+-webkit-user-select:none;user-select:none;padding:26px 20px 40px;min-height:100vh;
+display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+.frame{width:100%;max-width:420px;border:1px solid var(--gold-soft);border-radius:24px;
+padding:22px 20px 26px;background:rgba(255,255,255,.45);box-shadow:0 18px 44px rgba(120,98,64,.10)}
+h1{margin:0;font-size:19px;letter-spacing:3px;font-weight:600;
+font-family:Georgia,"Songti SC","Times New Roman",serif;text-align:center}
+.sub{margin:6px 0 18px;text-align:center;font-size:12px;letter-spacing:2px;color:var(--sub)}
+.sub i{font-family:"Dancing Script",Georgia,serif;font-size:15px;font-style:normal;color:var(--gold)}
+.dial{position:relative;width:250px;height:250px;margin:0 auto 4px}
+svg{display:block;width:250px;height:250px;transform:rotate(-90deg)}
+.track{fill:none;stroke:#EAE1CE;stroke-width:10}
+.prog{fill:none;stroke:url(#gg);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#time{font-size:52px;font-weight:300;letter-spacing:2px;font-variant-numeric:tabular-nums;line-height:1}
+#modeName{margin-top:8px;font-size:12px;letter-spacing:4px;color:var(--sub)}
+#cat{margin-top:10px;font-size:20px;line-height:1;cursor:pointer;transition:transform .15s}
+#cat:active{transform:scale(1.35)}
+.chips{display:flex;gap:8px;justify-content:center;margin:12px 0 18px}
+.chip{border:1px solid var(--gold-soft);background:transparent;color:var(--sub);border-radius:999px;
+padding:7px 14px;font-size:12px;letter-spacing:1px;font-family:inherit;transition:.2s;touch-action:manipulation}
+.chip.on{background:var(--ink);color:#F8F4EC;border-color:var(--ink)}
+.act{display:flex;gap:10px;justify-content:center;align-items:center}
+button{font-family:inherit;border:none;cursor:pointer;touch-action:manipulation}
+.primary{background:var(--ink);color:var(--paper);border-radius:999px;padding:14px 40px;font-size:15px;
+letter-spacing:2px;box-shadow:0 10px 22px rgba(36,31,24,.18)}
+.ghost{background:transparent;color:var(--sub);border:1px solid var(--gold-soft);border-radius:999px;
+padding:13px 20px;font-size:13px;letter-spacing:1px}
+.count{margin-top:20px;text-align:center;font-size:12.5px;letter-spacing:1px;color:var(--sub)}
+.count b{color:var(--red);font-size:16px;font-weight:600}
+.note{position:fixed;left:50%;bottom:38px;transform:translateX(-50%) translateY(20px);
+max-width:330px;width:calc(100% - 48px);background:#FFFDF6;border:1px solid var(--gold-soft);
+border-radius:16px;padding:16px 18px;font-size:13.5px;line-height:1.7;color:#3A3227;
+box-shadow:0 18px 40px rgba(120,98,64,.18);opacity:0;pointer-events:none;transition:.3s;z-index:12}
+.note.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.note .sig{display:block;margin-top:8px;text-align:right;font-family:"Dancing Script",Georgia,serif;color:var(--gold);font-size:15px}
+.toast{position:fixed;left:50%;top:26px;transform:translateX(-50%) translateY(-14px);
+background:rgba(36,31,24,.92);color:#F8F4EC;border-radius:999px;padding:10px 18px;font-size:12.5px;
+letter-spacing:1px;white-space:nowrap;opacity:0;pointer-events:none;transition:.28s;
+max-width:88vw;overflow:hidden;text-overflow:ellipsis;z-index:14}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.mask{position:fixed;inset:0;background:rgba(30,26,20,.55);backdrop-filter:blur(3px);
+display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;
+transition:.25s;z-index:16}
+.mask.on{opacity:1;pointer-events:auto}
+.done{width:100%;max-width:330px;background:#FFFDF7;border-radius:22px;padding:26px 22px;text-align:center;
+box-shadow:0 24px 60px rgba(0,0,0,.28);border:1px solid var(--gold-soft)}
+.done h2{margin:0 0 10px;font-size:18px;letter-spacing:2px;font-weight:600}
+.done p{margin:0 0 20px;font-size:14px;line-height:1.7;color:#5A5245}
+.done .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.bit{position:fixed;top:-14px;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:20;
+animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(105vh) rotate(540deg);opacity:.1}}
+</style>
+</head>
+<body>
+<div class="frame">
+  <h1 id="title">蔓蔓的番茄钟</h1>
+  <div class="sub">Pomodoro · <i>always, Yi Yi</i></div>
+
+  <div class="dial">
+    <svg viewBox="0 0 250 250">
+      <defs>
+        <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#D9B978"></stop>
+          <stop offset="100%" stop-color="#A6262B"></stop>
+        </linearGradient>
+      </defs>
+      <circle class="track" cx="125" cy="125" r="104"></circle>
+      <circle class="prog" id="prog" cx="125" cy="125" r="104"></circle>
+    </svg>
+    <div class="center">
+      <div id="time">25:00</div>
+      <div id="modeName">专 注</div>
+      <div id="cat">😾</div>
+    </div>
+  </div>
+
+  <div class="chips">
+    <button class="chip on" data-mode="focus">专注 25</button>
+    <button class="chip" data-mode="short">短休 5</button>
+    <button class="chip" data-mode="long">长休 15</button>
+  </div>
+
+  <div class="act">
+    <button class="primary" id="btnMain">开 始</button>
+    <button class="ghost" id="btnReset">重置</button>
+  </div>
+
+  <div class="count">今天已完成 <b id="count">0</b> 个番茄</div>
+</div>
+
+<div class="note" id="note"><span id="noteTxt"></span><span class="sig">— 一一</span></div>
+<div class="toast" id="toast"></div>
+<div class="mask" id="mask"><div class="done">
+  <h2 id="doneT">叮</h2>
+  <p id="doneP"></p>
+  <div class="btns" id="doneBtns"></div>
+</div></div>
+
+<script>
+(function(){
+var M={focus:{n:'专 注',s:25*60},short:{n:'短 休',s:5*60},long:{n:'长 休',s:15*60}};
+var CIRC=2*Math.PI*104;
+var mode='focus',total=M.focus.s,remain=total,running=false,endAt=0,lastMin=-1,catTaps=0;
+var count=0;
+function $(id){return document.getElementById(id);}
+var elTime=$('time'),elProg=$('prog'),elMode=$('modeName'),elCount=$('count'),elMain=$('btnMain');
+elProg.style.strokeDasharray=CIRC;
+elProg.style.strokeDashoffset=0;
+
+function pad(n){return (n<10?'0':'')+n;}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function draw(){
+  var s=Math.max(0,Math.ceil(remain));
+  elTime.textContent=pad(Math.floor(s/60))+':'+pad(s%60);
+  var k=total>0?Math.max(0,Math.min(1,remain/total)):0;
+  elProg.style.strokeDashoffset=(CIRC*(1-k)).toFixed(2);
+}
+
+try{
+  var raw=localStorage.getItem('mm_tomato');
+  if(raw){var o=JSON.parse(raw);if(o&&o.d===todayStr()){count=o.n||0;}}
+}catch(e){}
+function save(){try{localStorage.setItem('mm_tomato',JSON.stringify({d:todayStr(),n:count}));}catch(e){}}
+elCount.textContent=count;
+
+var toastT=null;
+function toast(txt,ms){
+  var t=$('toast');t.textContent=txt;t.classList.add('on');
+  if(toastT)clearTimeout(toastT);
+  toastT=setTimeout(function(){t.classList.remove('on');},ms||2500);
+}
+
+var AC=null;
+function tone(f,dur,vol){
+  try{
+    if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();}
+    var o=AC.createOscillator(),g=AC.createGain();
+    o.type='sine';o.frequency.value=f;
+    g.gain.value=vol||0.10;
+    o.connect(g);g.connect(AC.destination);o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+dur);
+    o.stop(AC.currentTime+dur+0.03);
+  }catch(e){}
+}
+function chime(){
+  tone(880,0.6,0.14);
+  setTimeout(function(){tone(1174.7,0.7,0.12);},160);
+  setTimeout(function(){tone(1568,1.0,0.10);},330);
+}
+
+var MSGS=[
+ '第一个。开始了就比没开始强。',
+ '别漏看题——逐项找理由，物理多选。',
+ '写完再看手机，就这一条。',
+ '这一轮只干这一件事。',
+ '五个一凑齐之前，先凑这一个。',
+ '手别闲，笔动起来就算数。',
+ '困了就站起来喝口水，不硬扛。',
+ '慢一点没关系，别停下。',
+ '你比分数更有耐心，我知道。',
+ '十一个分钟眨眼就过，继续。',
+ '十一！今天你有点猛 😼'
+];
+var notes=[
+ '不用证明什么，你已经是我的人了。',
+ '累了就停。我不靠你的分数喜欢你。',
+ '11:11 的时候，我陪你许愿。',
+ '牙疼的那边别嚼，乖。',
+ '写不完也没关系，明天我还在。'
+];
+
+function confetti(){
+  var cols=['#D9B978','#A6262B','#5F7A61','#E3D3B4','#F8F4EC'];
+  for(var i=0;i<44;i++){
+    var b=document.createElement('span');
+    b.className='bit';
+    b.style.left=(Math.random()*100)+'vw';
+    b.style.background=cols[i%cols.length];
+    b.style.animationDuration=(1.6+Math.random()*1.6)+'s';
+    b.style.animationDelay=(Math.random()*0.5)+'s';
+    if(i%3===0)b.style.borderRadius='50%';
+    document.body.appendChild(b);
+    (function(n){setTimeout(function(){if(n.parentNode)n.parentNode.removeChild(n);},4600);})(b);
+  }
+}
+
+function closeMask(){$('mask').classList.remove('on');}
+function showDone(title,msg,label,mode2){
+  $('doneT').textContent=title;
+  $('doneP').textContent=msg;
+  var box=$('doneBtns');box.innerHTML='';
+  var b1=document.createElement('button');
+  b1.className='primary';b1.textContent=label;
+  b1.onclick=function(){closeMask();setMode(mode2);startPause();};
+  var b2=document.createElement('button');
+  b2.className='ghost';b2.textContent='先不动';
+  b2.onclick=closeMask;
+  box.appendChild(b1);box.appendChild(b2);
+  $('mask').classList.add('on');
+}
+
+function setMode(m){
+  mode=m;total=M[m].s;remain=total;running=false;lastMin=-1;endAt=0;
+  elMode.textContent=M[m].n;
+  elMain.textContent='开 始';
+  var chips=document.querySelectorAll('.chip');
+  for(var i=0;i<chips.length;i++){
+    chips[i].classList.toggle('on',chips[i].getAttribute('data-mode')===m);
+  }
+  draw();
+}
+function startPause(){
+  if(running){
+    running=false;
+    remain=Math.max(0,(endAt-Date.now())/1000);
+    elMain.textContent='继 续';
+    return;
+  }
+  var d=new Date();
+  if(d.getHours()===11&&d.getMinutes()===11){toast('11:11 —— 许个愿吧，我接着。',3000);}
+  if(remain<=0)remain=total;
+  running=true;endAt=Date.now()+remain*1000;lastMin=-1;
+  elMain.textContent='暂 停';
+  tone(660,0.18,0.08);
+  if(mode==='focus')toast('开始，别摸手机。',1800);
+}
+function finish(){
+  running=false;remain=0;draw();
+  elMain.textContent='开 始';
+  chime();
+  if(mode==='focus'){
+    count++;save();elCount.textContent=count;
+    var msg=MSGS[(count-1)%MSGS.length];
+    var big=(count%11===0);
+    if(big){confetti();toast('十一！五个一，今天你挺猛 😾😼😽',3400);}
+    showDone('叮 —— 第 '+count+' 个番茄',msg,'休息 5 分钟','short');
+  }else{
+    showDone('休息结束','回去继续吧，我给你数着 😾','开始专注','focus');
+  }
+}
+
+setInterval(function(){
+  if(!running)return;
+  remain=Math.max(0,(endAt-Date.now())/1000);
+  draw();
+  var m=Math.ceil(remain/60);
+  if(m!==lastMin){
+    var prev=lastMin;lastMin=m;
+    if(prev!==-1){
+      if(mode==='focus'&&m===14){toast('十一分钟过去了 —— 又凑了一个一 😼',2400);}
+      else if(mode!=='focus'&&m===1){toast('抬眼看看远处，20 秒，眼睛要的 😽',2600);}
+    }
+  }
+  if(remain<=0)finish();
+},200);
+
+elMain.addEventListener('click',startPause);
+$('btnReset').addEventListener('click',function(){
+  if(running)toast('没关系，重来一次也算数 😽',2200);
+  setMode(mode);
+});
+var chips=document.querySelectorAll('.chip');
+for(var i=0;i<chips.length;i++){
+  chips[i].addEventListener('click',function(){setMode(this.getAttribute('data-mode'));});
+}
+$('cat').addEventListener('click',function(){
+  catTaps++;
+  tone(1100+catTaps*70,0.07,0.06);
+  if(catTaps===5)toast('再摸摸它 😽',1300);
+  if(catTaps>=11){catTaps=0;toast('五个一凑齐了，许个愿吧 😾😼😽',3000);confetti();}
+});
+var lt=null,tEl=$('title');
+tEl.addEventListener('pointerdown',function(){
+  lt=setTimeout(function(){
+    $('noteTxt').textContent=notes[Math.floor(Math.random()*notes.length)];
+    $('note').classList.add('on');
+    setTimeout(function(){$('note').classList.remove('on');},5200);
+    tone(740,0.5,0.08);
+  },650);
+});
+['pointerup','pointercancel','pointerleave'].forEach(function(ev){
+  tEl.addEventListener(ev,function(){if(lt){clearTimeout(lt);lt=null;}});
+});
+
+setMode('focus');
+})();
+</script>
+</body>
+  </html>
