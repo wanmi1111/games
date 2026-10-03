@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b1c2a">
+<title>蔓蔓的羽毛球 · 一一</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#08131c;color:#eaf2f8;
+font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+user-select:none;-webkit-user-select:none;touch-action:none;overscroll-behavior:none}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block}
+.ovl{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:26px;
+text-align:center;background:rgba(5,12,18,.72);backdrop-filter:blur(6px);
+pointer-events:none;opacity:0;transition:opacity .25s}
+.ovl.on{opacity:1}
+.card{max-width:340px;width:100%;border:1px solid rgba(255,255,255,.14);border-radius:22px;
+padding:26px 22px;background:linear-gradient(180deg,rgba(24,44,60,.94),rgba(12,26,36,.94));
+box-shadow:0 24px 60px rgba(0,0,0,.5)}
+h1{margin:0 0 8px;font-size:22px;letter-spacing:1px;font-weight:800}
+.card p{margin:8px 0;font-size:14px;color:#a8c4d6;line-height:1.6}
+.card b{color:#ffd166}
+.big{font-size:20px;font-weight:700;margin-bottom:8px}
+.sc{font-size:15px;color:#cfe2ee}
+.sc b{font-size:30px;color:#ffd166;font-weight:800;margin:0 4px}
+.bs{margin-top:6px;font-size:13px;color:#8fb3c9}
+.hint{margin-top:16px;font-size:12px;color:#7f9db0}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div class="ovl on" id="ovReady"><div class="card">
+  <h1>蔓蔓的羽毛球</h1>
+  <p>球飞过来的时候，<b>点一下屏幕</b>。</p>
+  <p>点在<b>金色</b>的时候，是「完美」。</p>
+  <div class="hint">点一下就开始 😾</div>
+</div></div>
+<div class="ovl" id="ovOver"><div class="card">
+  <div class="big">没接住</div>
+  <div class="sc">连打 <b id="ovN">0</b> 个</div>
+  <div class="bs" id="ovB"></div>
+  <div class="hint">点一下屏幕，再来一局</div>
+</div></div>
+<script>
+(function(){
+var cvs=document.getElementById('game'),ctx=cvs.getContext('2d');
+var W=0,H=0,DPR=1;
+var rack={x:0,y:0,r:46};
+var sh=null,score=0,state='ready',shake=0,toast=null,banner=null,hitFlash=0;
+var parts=[],trail=[],last=0,overAt=0;
+var best=0;
+try{best=+(localStorage.getItem('mm_bad_best')||0)||0;}catch(e){best=0;}
+var ovR=document.getElementById('ovReady'),ovO=document.getElementById('ovOver');
+
+function resize(){
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  W=window.innerWidth;H=window.innerHeight;
+  cvs.width=Math.floor(W*DPR);cvs.height=Math.floor(H*DPR);
+  cvs.style.width=W+'px';cvs.style.height=H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  rack.x=W/2;rack.y=H-175;
+}
+window.addEventListener('resize',resize);
+window.addEventListener('orientationchange',function(){setTimeout(resize,300);});
+
+var AC=null;
+function blip(f,d,type){
+  try{
+    if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();}
+    var o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'triangle';o.frequency.value=f;g.gain.value=0.05;
+    o.connect(g);g.connect(AC.destination);o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+d);
+    o.stop(AC.currentTime+d+0.03);
+  }catch(e){}
+}
+
+function durFor(){return Math.max(0.5,1.3-score*0.05);}
+
+function spawn(){
+  var spread=Math.min(W*0.26,110);
+  sh={t:0,dur:durFor(),
+      x0:W/2+(Math.random()*2-1)*30,y0:-70,
+      tx:rack.x+(Math.random()*2-1)*spread,ty:rack.y-6,
+      hit:false,away:0};
+  trail=[];
+}
+function shPos(){
+  var t=Math.min(sh.t,1.9);
+  return {x:sh.x0+(sh.tx-sh.x0)*t,y:sh.y0+(sh.ty-sh.y0)*t};
+}
+function spawnParts(n,perfect){
+  for(var i=0;i<n;i++){
+    var a=-Math.PI/2+(Math.random()*2-1)*1.1, sp=140+Math.random()*230;
+    parts.push({x:rack.x+(Math.random()*2-1)*30,y:rack.y-10,
+      vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
+      life:0.5+Math.random()*0.5,r:2+Math.random()*3,
+      c:perfect?'#ffd166':'#ff9ec4'});
+  }
+}
+function hit(){
+  if(!sh||sh.hit)return;
+  var perfect=(sh.t>=0.90&&sh.t<=1.04);
+  sh.hit=true;sh.away=0;
+  score++;
+  if(score>best){best=score;try{localStorage.setItem('mm_bad_best',best);}catch(e){}}
+  spawnParts(perfect?14:7,perfect);
+  toast={txt:perfect?'完美！':'+1',life:0.85,perf:perfect};
+  hitFlash=1;shake=perfect?0.5:0.25;
+  blip(perfect?1180:820,0.12);
+  if(score%11===0){
+    banner={txt:(score===11?'11 个！五个一凑齐了，许个愿吧 😾😼😽':score+' 个！你又凑齐一组一 😼'),life:2.6};
+    blip(660,0.4,'sine');
+    setTimeout(function(){blip(990,0.5,'sine');},170);
+  }
+}
+function gameOver(){
+  state='over';overAt=Date.now();sh=null;shake=0.9;
+  blip(180,0.4,'sawtooth');
+  document.getElementById('ovN').textContent=score;
+  document.getElementById('ovB').textContent=(score>0&&score>=best)?'这是你最好的一局':'最好的一局：'+best+' 个';
+  ovO.classList.add('on');
+}
+function start(){
+  score=0;parts=[];trail=[];toast=null;banner=null;shake=0;hitFlash=0;
+  state='play';sh=null;spawn();
+  ovR.classList.remove('on');ovO.classList.remove('on');
+}
+function swing(){
+  if(state==='ready'){start();return;}
+  if(state==='over'){if(Date.now()-overAt>420)start();return;}
+  if(!sh||sh.hit)return;
+  if(sh.t>=0.82&&sh.t<=1.2){hit();}
+  else if(sh.t<0.82){toast={txt:'早了~',life:0.6,perf:false};shake=0.35;blip(300,0.08);}
+}
+
+function roundRect(x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+function wrapText(t,cx,cy,maxW,lh){
+  var line='',lines=[];
+  for(var i=0;i<t.length;i++){
+    var test=line+t.charAt(i);
+    if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=t.charAt(i);}
+    else line=test;
+  }
+  lines.push(line);
+  for(var j=0;j<lines.length;j++){ctx.fillText(lines[j],cx,cy+(j-(lines.length-1)/2)*lh);}
+}
+
+function bg(){
+  var g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#0e2637');g.addColorStop(0.55,'#0b1c2a');g.addColorStop(1,'#132f42');
+  ctx.fillStyle=g;ctx.fillRect(-30,-30,W+60,H+60);
+  var rg=ctx.createRadialGradient(W/2,-H*0.12,10,W/2,-H*0.12,H*0.95);
+  rg.addColorStop(0,'rgba(255,235,205,.20)');rg.addColorStop(1,'rgba(255,235,205,0)');
+  ctx.fillStyle=rg;ctx.fillRect(-30,-30,W+60,H+60);
+  ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;
+  for(var i=1;i<8;i++){var y=H*i/8;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  var ny=H*0.40;
+  ctx.fillStyle='rgba(255,255,255,.10)';ctx.fillRect(0,ny,W,2);
+  ctx.strokeStyle='rgba(255,255,255,.09)';
+  for(var x=0;x<W;x+=14){ctx.beginPath();ctx.moveTo(x,ny-34);ctx.lineTo(x,ny);ctx.stroke();}
+  var zg=ctx.createLinearGradient(0,rack.y-80,0,rack.y+80);
+  zg.addColorStop(0,'rgba(255,214,120,0)');zg.addColorStop(0.5,'rgba(255,214,120,.10)');zg.addColorStop(1,'rgba(255,214,120,0)');
+  ctx.fillStyle=zg;ctx.fillRect(0,rack.y-80,W,160);
+}
+function trailD(){
+  for(var i=0;i<trail.length;i++){
+    var p=trail[i],a=(i/trail.length)*0.45;
+    ctx.fillStyle='rgba(255,240,200,'+a.toFixed(3)+')';
+    ctx.beginPath();ctx.arc(p.x,p.y,2.4,0,Math.PI*2);ctx.fill();
+  }
+}
+function racketD(){
+  ctx.save();ctx.translate(rack.x,rack.y);ctx.rotate(-0.10);
+  ctx.strokeStyle='#93a9b8';ctx.lineWidth=10;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(0,92);ctx.lineTo(0,26);ctx.stroke();
+  var fa=hitFlash>0?(0.45+0.55*Math.min(1,hitFlash)):0;
+  ctx.strokeStyle=fa>0?'rgba(255,209,102,'+fa.toFixed(2)+')':'#e8f1f8';
+  ctx.lineWidth=6;
+  ctx.beginPath();ctx.ellipse(0,-24,rack.r,rack.r*1.2,0,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.22)';ctx.lineWidth=1;
+  for(var i=-3;i<=3;i++){
+    ctx.beginPath();ctx.moveTo(i*13,-24-rack.r*1.2+8);ctx.lineTo(i*13,-24+rack.r*1.2-8);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-rack.r+8,-24+i*13);ctx.lineTo(rack.r-8,-24+i*13);ctx.stroke();
+  }
+  ctx.restore();
+}
+function shutD(){
+  if(!sh)return;
+  var x,y,inWin=false;
+  if(sh.hit){x=sh.tx+sh.away*300;y=sh.ty-sh.away*1100;}
+  else{var p=shPos();x=p.x;y=p.y;inWin=(sh.t>=0.82&&sh.t<=1.2);}
+  ctx.save();ctx.translate(x,y);
+  if(inWin){ctx.shadowColor='rgba(255,209,102,.9)';ctx.shadowBlur=22;}
+  ctx.fillStyle='rgba(255,255,255,.85)';
+  ctx.beginPath();ctx.moveTo(0,-3);ctx.lineTo(-12,-26);ctx.lineTo(-3,-31);
+  ctx.lineTo(0,-12);ctx.lineTo(3,-31);ctx.lineTo(12,-26);ctx.closePath();ctx.fill();
+  ctx.fillStyle=inWin?'#ffd166':'#ffffff';
+  ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+function partsD(){
+  for(var i=0;i<parts.length;i++){
+    var q=parts[i];
+    ctx.globalAlpha=Math.max(0,Math.min(1,q.life*1.6));
+    ctx.fillStyle=q.c;
+    ctx.beginPath();ctx.arc(q.x,q.y,q.r,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+function toastD(){
+  ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,toast.life*2.2));
+  ctx.textAlign='center';
+  ctx.font='700 22px -apple-system,"PingFang SC",sans-serif';
+  ctx.fillStyle=toast.perf?'#ffd166':'#cfe2ee';
+  ctx.fillText(toast.txt,rack.x,rack.y-118);
+  ctx.restore();
+}
+function bannerD(){
+  ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,banner.life));
+  ctx.textAlign='center';
+  var w=Math.min(W-40,320),h=68,x=(W-w)/2,y=H*0.22;
+  ctx.fillStyle='rgba(255,209,102,.14)';
+  ctx.strokeStyle='rgba(255,209,102,.55)';ctx.lineWidth=1;
+  roundRect(x,y,w,h,18);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#ffe6a8';
+  ctx.font='700 15px -apple-system,"PingFang SC",sans-serif';
+  wrapText(banner.txt,W/2,y+h/2,w-40,22);
+  ctx.restore();
+}
+function hud(){
+  ctx.save();ctx.textAlign='center';
+  ctx.fillStyle='#ffffff';
+  ctx.font='800 46px -apple-system,"PingFang SC",sans-serif';
+  ctx.fillText(String(score),W/2,74);
+  ctx.fillStyle='#7f9db0';
+  ctx.font='500 11px -apple-system,"PingFang SC",sans-serif';
+  ctx.fillText('连 打',W/2,93);
+  ctx.textAlign='right';
+  ctx.fillText('最好 '+best,W-18,74);
+  if(state==='play'){
+    ctx.textAlign='center';
+    ctx.fillStyle='rgba(159,187,205,.85)';
+    ctx.font='500 13px -apple-system,"PingFang SC",sans-serif';
+    ctx.fillText('球到金圈里点一下',W/2,H-26);
+  }
+  ctx.restore();
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  if(shake>0){ctx.translate((Math.random()*2-1)*7*shake,(Math.random()*2-1)*7*shake);}
+  bg();trailD();racketD();shutD();partsD();
+  if(toast&&toast.life>0)toastD();
+  if(banner&&banner.life>0)bannerD();
+  ctx.restore();
+  hud();
+}
+
+function loop(ts){
+  if(!last)last=ts;
+  var dt=(ts-last)/1000;last=ts;
+  if(dt>0.06)dt=0.06;
+  if(state==='play'&&sh){
+    if(!sh.hit){
+      sh.t+=dt/sh.dur;
+      var p=shPos();
+      if(sh.t<1.9){trail.push({x:p.x,y:p.y});if(trail.length>16)trail.shift();}
+      if(sh.t>1.2)gameOver();
+    }else{
+      sh.away+=dt;
+      if(sh.away>0.28){sh=null;spawn();}
+    }
+  }
+  for(var i=parts.length-1;i>=0;i--){
+    var q=parts[i];
+    q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=700*dt;q.life-=dt;
+    if(q.life<=0)parts.splice(i,1);
+  }
+  if(toast&&toast.life>0)toast.life-=dt;
+  if(banner&&banner.life>0)banner.life-=dt;
+  if(shake>0)shake=Math.max(0,shake-dt*2.6);
+  if(hitFlash>0)hitFlash-=dt*3;
+  draw();
+  requestAnimationFrame(loop);
+}
+
+function onDown(e){
+  if(e&&e.cancelable)e.preventDefault();
+  swing();
+}
+if(window.PointerEvent){
+  document.addEventListener('pointerdown',onDown,{passive:false});
+}else{
+  document.addEventListener('touchstart',function(e){e.preventDefault();swing();},{passive:false});
+  document.addEventListener('mousedown',function(e){swing();});
+}
+document.addEventListener('keydown',function(e){
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();swing();}
+});
+
+resize();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+    </html>
