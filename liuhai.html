@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>刘海试衣间</title>
+<style>
+:root{--paper:#fbf7f0;--ink:#2b2b33;--line:#ded4c4;--gold:#c9a227}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;padding:20px 14px 40px;background:var(--paper);color:var(--ink);text-align:center;font-family:"Songti SC","Noto Serif SC",Georgia,"Times New Roman",serif}
+h1{font-size:19px;letter-spacing:.2em;margin:2px 0 5px;font-weight:600}
+.sub{font-size:10px;letter-spacing:.28em;color:#b3a58c;margin-bottom:14px}
+.stage{max-width:330px;margin:0 auto;padding:8px 6px 0;background:#fffdf8;border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 22px rgba(130,110,80,.09)}
+svg{display:block;width:100%;height:auto;touch-action:manipulation}
+.hint{font-size:11px;color:#b3a58c;padding:6px 0 9px}
+.row{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:15px auto 0;max-width:330px}
+button{font-family:inherit;font-size:13px;letter-spacing:.06em;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#fffdf8;color:var(--ink)}
+button:not(.on).ref{color:#9a8e7a;font-size:12px}
+button.on{background:var(--ink);color:#fbf7f0;border-color:var(--ink)}
+.sliders{max-width:330px;margin:16px auto 0;text-align:left;transition:opacity .25s}
+.sl{display:flex;align-items:center;gap:10px;margin:9px 0;font-size:13px;color:#8d8271}
+.sl label{width:48px;flex:0 0 auto;letter-spacing:.12em}
+.sl input{flex:1;min-width:0}
+.sl b{width:30px;text-align:right;font-weight:400;color:var(--gold);font-size:12px}
+input[type=range]{-webkit-appearance:none;appearance:none;height:22px;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;margin-top:-7.5px;border-radius:50%;background:var(--gold);border:2px solid #fffdf8;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+input[type=range]:disabled{opacity:.5}
+.note{max-width:310px;margin:18px auto 0;font-size:12px;color:#a3957e;line-height:1.8}
+.note em{font-style:normal;color:var(--gold)}
+.seal{margin-top:22px;font-size:10px;letter-spacing:.3em;color:#cbbfa8}
+.dim{opacity:.32}
+@keyframes blink{0%,88%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+.blink .eye-shape{animation:blink .85s ease-in-out 2;transform-box:fill-box;transform-origin:center}
+</style>
+</head>
+<body>
+<h1>刘海试衣间</h1>
+<div class="sub">BANGS FITTING ROOM</div>
+
+<div class="stage">
+<svg id="stage" viewBox="0 0 300 360">
+<path d="M60,356 Q150,268 240,356 Z" fill="#ece3d4"/>
+<rect x="138" y="222" width="24" height="46" rx="10" fill="#f2d9c8" stroke="#2a2731" stroke-width="1.4"/>
+<ellipse cx="150" cy="146" rx="86" ry="104" fill="#2a2731"/>
+<path d="M64,150 C60,214 56,272 50,330 Q48,342 64,342 L100,342 C94,272 92,208 90,150 Z" fill="#2a2731"/>
+<path d="M236,150 C240,214 244,272 250,330 Q252,342 236,342 L200,342 C206,272 208,208 210,150 Z" fill="#2a2731"/>
+<ellipse cx="150" cy="150" rx="72" ry="84" fill="#f7e3d6" stroke="#2a2731" stroke-width="1.6"/>
+<ellipse cx="108" cy="196" rx="11" ry="6" fill="#f0b5ab" opacity=".5"/>
+<ellipse cx="192" cy="196" rx="11" ry="6" fill="#f0b5ab" opacity=".5"/>
+<g id="bangs"></g>
+<g id="eyes"></g>
+</svg>
+<div class="hint">点一下小人，它会眨眼</div>
+</div>
+
+<div class="row" id="row"></div>
+<div class="row"><button class="ref" id="eyebtn">眼睛：圆眼</button></div>
+
+<div class="sliders" id="sliders">
+<div class="sl"><label>长度</label><input id="len" type="range" min="0" max="100" value="50"><b id="lenv">50</b></div>
+<div class="sl"><label>厚薄</label><input id="thick" type="range" min="0" max="100" value="50"><b id="thickv">50</b></div>
+</div>
+
+<div class="note">挑好一版就<em>截图</em>，进门把图直接给师傅看——长度、厚薄照你拖的这条说就行。</div>
+<div class="seal">壹 · FOR 蔓蔓</div>
+
+<script>
+(function(){
+var S={style:'qi',len:.5,thick:.5,eyes:'round'};
+var ARC='M82,82 A86,104 0 0 1 218,82';
+var BAND=ARC+' L218,104 Q150,116 82,104 Z';
+var $=function(i){return document.getElementById(i)};
+var bangs=$('bangs'),eyes=$('eyes'),row=$('row');
+function lr(a,b,t){return a+(b-a)*t}
+function eyesSVG(){
+ if(S.eyes==='smile'){
+  return '<path class="eye-shape" d="M112,172 Q123,159 134,172" fill="none" stroke="#2a2731" stroke-width="2.6" stroke-linecap="round"/><path class="eye-shape" d="M166,172 Q177,159 188,172" fill="none" stroke="#2a2731" stroke-width="2.6" stroke-linecap="round"/>';
+ }
+ return '<g class="eye-shape"><circle cx="123" cy="168" r="7.6" fill="#2a2731"/><circle cx="120.6" cy="165" r="2.3" fill="#fffdf8"/></g><g class="eye-shape"><circle cx="177" cy="168" r="7.6" fill="#2a2731"/><circle cx="174.6" cy="165" r="2.3" fill="#fffdf8"/></g>';
+}
+function bangsSVG(){
+ if(S.style==='none'){
+  return '<path d="M150,44 C116,52 98,92 94,152 L76,152 C82,86 108,52 150,44 Z" fill="#2a2731"/><path d="M150,44 C184,52 202,92 206,152 L224,152 C218,86 192,52 150,44 Z" fill="#2a2731"/>';
+ }
+ var o=BAND;
+ if(S.style==='qi'){
+  var b=lr(110,144,S.len),mid=b+8+S.thick*6;
+  o+=ARC+' L218,'+(b-6)+' Q150,'+mid+' 82,'+(b-6)+' Z';
+ }else if(S.style==='duan'){
+  var b2=lr(104,122,S.len);
+  o+=ARC+' L218,'+(b2-4)+' Q150,'+(b2+4)+' 82,'+(b2-4)+' Z';
+ }else if(S.style==='xie'){
+  var b3=lr(110,134,S.len);
+  o+=ARC+' L218,'+(b3-22)+' Q198,'+(b3-2)+' 82,'+(b3+14)+' Z';
+ }else if(S.style==='kong'){
+  var n=3+Math.round(S.thick*4),b4=lr(108,140,S.len),w=136/n,gap=w*(0.5-0.3*S.thick);
+  o+='<g fill="#2a2731" opacity="0.92">';
+  for(var i=0;i<n;i++){
+   var x0=82+i*w+gap/2,x1=82+(i+1)*w-gap/2,by=b4+(i%2?5:-3);
+   o+='<path d="M'+x0+',100 L'+x1+',100 L'+x1+','+(by-7)+' Q'+((x0+x1)/2)+','+(by+7)+' '+x0+','+(by-7)+' Z"/>';
+  }
+  o+='</g>';
+ }
+ return o;
+}
+function render(){bangs.innerHTML=bangsSVG();eyes.innerHTML=eyesSVG();}
+var STYLES=[['qi','齐刘海'],['kong','空气刘海'],['xie','斜刘海'],['duan','眉上短'],['none','我现在的样子']];
+for(var i=0;i<STYLES.length;i++){
+ (function(k,label){
+  var btn=document.createElement('button');
+  btn.textContent=label;
+  if(k==='none')btn.className='ref';
+  btn.onclick=function(){setStyle(k)};
+  row.appendChild(btn);
+ })(STYLES[i][0],STYLES[i][1]);
+}
+function setStyle(k){
+ S.style=k;
+ var bs=row.children;
+ for(var i=0;i<bs.length;i++){bs[i].classList.toggle('on',STYLES[i][0]===k)}
+ var off=(k==='none');
+ $('sliders').classList.toggle('dim',off);
+ $('len').disabled=off;$('thick').disabled=off;
+ render();
+}
+$('len').oninput=function(){S.len=this.value/100;$('lenv').textContent=this.value;render()};
+$('thick').oninput=function(){S.thick=this.value/100;$('thickv').textContent=this.value;render()};
+$('eyebtn').onclick=function(){
+ S.eyes=(S.eyes==='round')?'smile':'round';
+ this.textContent='眼睛：'+(S.eyes==='round'?'圆眼':'笑眯眼');
+ render();
+};
+var stage=$('stage');
+stage.addEventListener('click',function(){
+ stage.classList.remove('blink');
+ void stage.offsetWidth;
+ stage.classList.add('blink');
+});
+stage.addEventListener('animationend',function(){stage.classList.remove('blink')});
+setStyle('qi');
+})();
+</script>
+</body>
+</html>
