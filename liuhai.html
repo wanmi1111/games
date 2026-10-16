@@ -68,40 +68,48 @@ input[type=range]:disabled{opacity:.5}
 <script>
 (function(){
 var S={style:'qi',len:.5,thick:.5,eyes:'round'};
-var ARC='M82,82 A86,104 0 0 1 218,82';
-var BAND=ARC+' L218,104 Q150,116 82,104 Z';
+var F='#2a2731';
+var TOP='M64,146 C64,88.6 102.5,42 150,42 C197.5,42 236,88.6 236,146';
 var $=function(i){return document.getElementById(i)};
 var bangs=$('bangs'),eyes=$('eyes'),row=$('row');
 function lr(a,b,t){return a+(b-a)*t}
 function eyesSVG(){
  if(S.eyes==='smile'){
-  return '<path class="eye-shape" d="M112,172 Q123,159 134,172" fill="none" stroke="#2a2731" stroke-width="2.6" stroke-linecap="round"/><path class="eye-shape" d="M166,172 Q177,159 188,172" fill="none" stroke="#2a2731" stroke-width="2.6" stroke-linecap="round"/>';
+  return '<path class="eye-shape" d="M112,172 Q123,159 134,172" fill="none" stroke="'+F+'" stroke-width="2.6" stroke-linecap="round"/><path class="eye-shape" d="M166,172 Q177,159 188,172" fill="none" stroke="'+F+'" stroke-width="2.6" stroke-linecap="round"/>';
  }
- return '<g class="eye-shape"><circle cx="123" cy="168" r="7.6" fill="#2a2731"/><circle cx="120.6" cy="165" r="2.3" fill="#fffdf8"/></g><g class="eye-shape"><circle cx="177" cy="168" r="7.6" fill="#2a2731"/><circle cx="174.6" cy="165" r="2.3" fill="#fffdf8"/></g>';
+ return '<g class="eye-shape"><circle cx="123" cy="168" r="7.6" fill="'+F+'"/><circle cx="120.6" cy="165" r="2.3" fill="#fffdf8"/></g><g class="eye-shape"><circle cx="177" cy="168" r="7.6" fill="'+F+'"/><circle cx="174.6" cy="165" r="2.3" fill="#fffdf8"/></g>';
 }
 function bangsSVG(){
  if(S.style==='none'){
-  return '<path d="M150,44 C116,52 98,92 94,152 L76,152 C82,86 108,52 150,44 Z" fill="#2a2731"/><path d="M150,44 C184,52 202,92 206,152 L224,152 C218,86 192,52 150,44 Z" fill="#2a2731"/>';
+  return '<path d="M150,42 C112,50 96,90 92,152 L74,152 C80,84 106,50 150,42 Z" fill="'+F+'"/>'
+       + '<path d="M150,42 C188,50 204,90 208,152 L226,152 C220,84 194,50 150,42 Z" fill="'+F+'"/>';
  }
- var o=BAND;
  if(S.style==='qi'){
-  var b=lr(110,144,S.len),mid=b+8+S.thick*6;
-  o+=ARC+' L218,'+(b-6)+' Q150,'+mid+' 82,'+(b-6)+' Z';
- }else if(S.style==='duan'){
-  var b2=lr(104,122,S.len);
-  o+=ARC+' L218,'+(b2-4)+' Q150,'+(b2+4)+' 82,'+(b2-4)+' Z';
- }else if(S.style==='xie'){
-  var b3=lr(110,134,S.len);
-  o+=ARC+' L218,'+(b3-22)+' Q198,'+(b3-2)+' 82,'+(b3+14)+' Z';
- }else if(S.style==='kong'){
-  var n=3+Math.round(S.thick*4),b4=lr(108,140,S.len),w=136/n,gap=w*(0.5-0.3*S.thick);
-  o+='<g fill="#2a2731" opacity="0.92">';
-  for(var i=0;i<n;i++){
-   var x0=82+i*w+gap/2,x1=82+(i+1)*w-gap/2,by=b4+(i%2?5:-3);
-   o+='<path d="M'+x0+',100 L'+x1+',100 L'+x1+','+(by-7)+' Q'+((x0+x1)/2)+','+(by+7)+' '+x0+','+(by-7)+' Z"/>';
-  }
-  o+='</g>';
+  var b=lr(114,145,S.len);
+  return '<path d="'+TOP+' L236,'+(b-10)+' Q150,'+(b+16)+' 64,'+(b-10)+' Z" fill="'+F+'"/>';
  }
+ if(S.style==='duan'){
+  var b1=lr(100,118,S.len);
+  return '<path d="'+TOP+' L236,'+(b1-8)+' Q150,'+(b1+10)+' 64,'+(b1-8)+' Z" fill="'+F+'"/>';
+ }
+ if(S.style==='xie'){
+  var b2=lr(106,134,S.len);
+  return '<path d="'+TOP+' L236,'+(b2-34)+' L64,'+(b2+20)+' Z" fill="'+F+'"/>';
+ }
+ var b3=lr(114,146,S.len);
+ var n=4+Math.round(S.thick*4);
+ var w=144/n;
+ var gap=w*(0.56-0.34*S.thick);
+ var o='<path d="'+TOP+' L236,110 Q150,124 64,110 Z" fill="'+F+'"/>';
+ o+='<g fill="'+F+'" opacity="0.9">';
+ for(var i=0;i<n;i++){
+  var x0=78+i*w+gap/2;
+  var x1=78+(i+1)*w-gap/2;
+  var tip=b3+((i%3)-1)*7;
+  var cx=(x0+x1)/2;
+  o+='<path d="M'+x0+',100 L'+x1+',100 L'+x1+','+(tip-18)+' Q'+x1+','+(tip-6)+' '+cx+','+tip+' Q'+x0+','+(tip-6)+' '+x0+','+(tip-18)+' Z"/>';
+ }
+ o+='</g>';
  return o;
 }
 function render(){bangs.innerHTML=bangsSVG();eyes.innerHTML=eyesSVG();}
@@ -142,4 +150,4 @@ setStyle('qi');
 })();
 </script>
 </body>
-</html>
+ </html>
