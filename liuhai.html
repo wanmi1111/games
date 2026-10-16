@@ -69,10 +69,15 @@ input[type=range]:disabled{opacity:.5}
 (function(){
 var S={style:'qi',len:.5,thick:.5,eyes:'round'};
 var F='#2a2731';
-var TOP='M64,146 C64,88.6 102.5,42 150,42 C197.5,42 236,88.6 236,146';
+var TOP_L='M64,146 C64,88.6 102.5,42 150,42';
+var TOP_R='M150,42 C197.5,42 236,88.6 236,146';
+var TOP=TOP_L+' C197.5,42 236,88.6 236,146';
 var $=function(i){return document.getElementById(i)};
 var bangs=$('bangs'),eyes=$('eyes'),row=$('row');
 function lr(a,b,t){return a+(b-a)*t}
+function hwAt(y){var d=(146-y)/104;var k=1-d*d;if(k<0)k=0;return 86*Math.sqrt(k)}
+function xL(y){return (150-hwAt(y)).toFixed(1)}
+function xR(y){return (150+hwAt(y)).toFixed(1)}
 function eyesSVG(){
  if(S.eyes==='smile'){
   return '<path class="eye-shape" d="M112,172 Q123,159 134,172" fill="none" stroke="'+F+'" stroke-width="2.6" stroke-linecap="round"/><path class="eye-shape" d="M166,172 Q177,159 188,172" fill="none" stroke="'+F+'" stroke-width="2.6" stroke-linecap="round"/>';
@@ -85,22 +90,29 @@ function bangsSVG(){
        + '<path d="M150,42 C188,50 204,90 208,152 L226,152 C220,84 194,50 150,42 Z" fill="'+F+'"/>';
  }
  if(S.style==='qi'){
-  var b=lr(114,145,S.len);
-  return '<path d="'+TOP+' L236,'+(b-10)+' Q150,'+(b+16)+' 64,'+(b-10)+' Z" fill="'+F+'"/>';
+  var y=lr(114,145,S.len)-10;
+  return '<path d="'+TOP+' L'+xR(y)+','+y+' Q150,'+(y+26)+' '+xL(y)+','+y+' Z" fill="'+F+'"/>';
  }
  if(S.style==='duan'){
-  var b1=lr(100,118,S.len);
-  return '<path d="'+TOP+' L236,'+(b1-8)+' Q150,'+(b1+10)+' 64,'+(b1-8)+' Z" fill="'+F+'"/>';
+  var y1=lr(100,118,S.len)-8;
+  return '<path d="'+TOP+' L'+xR(y1)+','+y1+' Q150,'+(y1+18)+' '+xL(y1)+','+y1+' Z" fill="'+F+'"/>';
  }
  if(S.style==='xie'){
   var b2=lr(106,134,S.len);
-  return '<path d="'+TOP+' L236,'+(b2-34)+' L64,'+(b2+20)+' Z" fill="'+F+'"/>';
+  var yTop=b2-34,yLow=b2+20;
+  return '<path d="'+TOP+' L'+xR(yTop)+','+yTop+' L'+xL(yLow)+','+yLow+' Z" fill="'+F+'"/>';
+ }
+ if(S.style==='fa'){
+  var b4=lr(118,140,S.len);
+  var yL2=b4-4-S.thick*5, lowY=b4+12+S.thick*8;
+  return '<path d="'+TOP_L+' L146,'+yL2+' Q128,'+(b4+2)+' '+xL(lowY)+','+lowY+' Z" fill="'+F+'"/>'
+       + '<path d="'+TOP_R+' L'+xR(lowY)+','+lowY+' Q172,'+(b4+2)+' 154,'+yL2+' Z" fill="'+F+'"/>';
  }
  var b3=lr(114,146,S.len);
  var n=4+Math.round(S.thick*4);
  var w=144/n;
  var gap=w*(0.56-0.34*S.thick);
- var o='<path d="'+TOP+' L236,110 Q150,124 64,110 Z" fill="'+F+'"/>';
+ var o='<path d="'+TOP+' L'+xR(110)+',110 Q150,124 '+xL(110)+',110 Z" fill="'+F+'"/>';
  o+='<g fill="'+F+'" opacity="0.9">';
  for(var i=0;i<n;i++){
   var x0=78+i*w+gap/2;
@@ -109,11 +121,10 @@ function bangsSVG(){
   var cx=(x0+x1)/2;
   o+='<path d="M'+x0+',100 L'+x1+',100 L'+x1+','+(tip-18)+' Q'+x1+','+(tip-6)+' '+cx+','+tip+' Q'+x0+','+(tip-6)+' '+x0+','+(tip-18)+' Z"/>';
  }
- o+='</g>';
- return o;
+ return o+'</g>';
 }
 function render(){bangs.innerHTML=bangsSVG();eyes.innerHTML=eyesSVG();}
-var STYLES=[['qi','齐刘海'],['kong','空气刘海'],['xie','斜刘海'],['duan','眉上短'],['none','我现在的样子']];
+var STYLES=[['qi','齐刘海'],['kong','空气刘海'],['fa','法式刘海'],['xie','斜刘海'],['duan','眉上短'],['none','我现在的样子']];
 for(var i=0;i<STYLES.length;i++){
  (function(k,label){
   var btn=document.createElement('button');
@@ -150,4 +161,4 @@ setStyle('qi');
 })();
 </script>
 </body>
- </html>
+</html>
