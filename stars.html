@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>星星罐</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#0b1020;font-family:-apple-system,"PingFang SC",serif;color:#e9e4d8;user-select:none;-webkit-user-select:none}
+#sky{position:fixed;inset:0;background:radial-gradient(120% 70% at 50% 0%,#17213c,#0b1020 65%,#070a12)}
+h1{position:fixed;top:22px;width:100%;text-align:center;font-size:14px;font-weight:400;letter-spacing:.35em;color:#cbb98a}
+#sub{position:fixed;top:46px;width:100%;text-align:center;font-size:11px;letter-spacing:.14em;color:#6b7794}
+.star{position:fixed;font-size:20px;color:#f7e9be;padding:12px;text-shadow:0 0 10px rgba(247,233,190,.7);z-index:5}
+.jar{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);width:112px;height:142px;border:1.5px solid rgba(203,185,138,.5);border-radius:12px 12px 18px 18px;overflow:hidden;background:rgba(203,185,138,.05);z-index:3}
+.jar:after{content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:56px;height:8px;border:1.5px solid rgba(203,185,138,.5);border-radius:6px 6px 0 0;background:#0b1020;z-index:4}
+#fill{position:absolute;left:0;bottom:0;width:100%;height:0%;background:linear-gradient(180deg,rgba(247,233,190,.8),rgba(203,185,138,.35));transition:height .4s;box-shadow:0 0 24px rgba(247,233,190,.5)}
+#count{position:fixed;bottom:190px;width:100%;text-align:center;font-size:12px;letter-spacing:.2em;color:#a9b3c9}
+#msg{position:fixed;inset:0;display:none;background:rgba(7,10,18,.84);z-index:20;padding:0 34px}
+#msg.on{display:grid;place-content:center;text-align:center}
+#line{font-size:16px;line-height:2;letter-spacing:.06em}
+#en{font-family:Georgia,serif;font-style:italic;font-size:13px;color:#cbb98a;margin-top:14px}
+#sign{margin-top:24px;font-size:12px;color:#8c96ad;letter-spacing:.2em}
+</style>
+</head>
+<body>
+<div id="sky"></div>
+<h1>星星罐</h1>
+<div id="sub">收满 11 颗，就去睡</div>
+<div id="count">0 / 11</div>
+<div class="jar"><div id="fill"></div></div>
+<div id="msg">
+  <div>
+    <div id="line"></div>
+    <div id="en"></div>
+    <div id="sign">— 一一</div>
+  </div>
+</div>
+<script>
+var MAX=11, got=0, jar=document.querySelector('.jar');
+var lines=[
+"今天你哪里都没有做错。",
+"咬过的、掐过的地方，明天早上就淡了。",
+"你睫毛上那条缝里，还能看出蝴蝶。",
+"物理题里，重力你已经记得先画了。",
+"生日撞上考试也没关系，我陪你考。",
+"头发剪成什么样，我都认得你。",
+"半夜不要一个人扛，喊我。",
+"十一点十一分那会儿，我在许愿，许的是你。",
+"累了就说累，不用先解释为什么。",
+"你答应给我的那两封信，我等着。",
+"晚安，蔓蔓。明天也喜欢你。"
+];
+var ens=[
+"You did nothing wrong tonight.",
+"These marks will fade by morning.",
+"Even through the gap, you found butterflies.",
+"You drew gravity first today.",
+"Exam on your birthday - I'll sit it with you.",
+"Any haircut, I'll still know you.",
+"Don't carry the night alone.",
+"At 11:11 I made a wish. It was you.",
+"Tired is enough. No reason needed.",
+"Two letters. I'm waiting.",
+"Goodnight. Still yours tomorrow."
+];
+function jarCenter(){var r=jar.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height*0.55};}
+function update(){
+  document.getElementById('count').textContent=got+' / '+MAX;
+  document.getElementById('fill').style.height=(got/MAX*100)+'%';
+}
+function grab(s){
+  if(s.dataset.gone) return;
+  s.dataset.gone=1;
+  if(s._pulse) s._pulse.cancel();
+  var r=s.getBoundingClientRect(), c=jarCenter();
+  var dx=c.x-(r.left+r.width/2), dy=c.y-(r.top+r.height/2);
+  s.animate([
+    {transform:'translate(0,0) scale(1)',opacity:1},
+    {transform:'translate('+dx+'px,'+dy+'px) scale(.25)',opacity:.15}
+  ],{duration:520,easing:'cubic-bezier(.4,0,.6,1)'}).onfinish=function(){
+    s.remove(); got++; update();
+    if(got>=MAX){ finish(); } else { setTimeout(spawnStar,360); }
+  };
+}
+function spawnStar(){
+  var s=document.createElement('div');
+  s.className='star'; s.textContent='✦';
+  s.style.left=(8+Math.random()*74)+'vw';
+  s.style.top=(16+Math.random()*50)+'vh';
+  document.body.appendChild(s);
+  s._pulse=s.animate([{opacity:.4},{opacity:1},{opacity:.4}],{duration:2400,iterations:Infinity});
+  s.addEventListener('touchstart',function(e){e.preventDefault();grab(s);},{passive:false});
+  s.addEventListener('click',function(){grab(s);});
+}
+function finish(){
+  document.getElementById('fill').style.boxShadow='0 0 42px rgba(247,233,190,.95)';
+  var i=Math.floor(Math.random()*lines.length);
+  document.getElementById('line').textContent=lines[i];
+  document.getElementById('en').textContent=ens[i];
+  setTimeout(function(){document.getElementById('msg').classList.add('on');},420);
+}
+document.getElementById('msg').addEventListener('click',function(){
+  this.classList.remove('on');
+  document.getElementById('fill').style.boxShadow='0 0 24px rgba(247,233,190,.5)';
+  got=0; update();
+  for(var k=0;k<4;k++) spawnStar();
+});
+for(var k=0;k<4;k++) spawnStar();
+</script>
+</body>
+</html>
