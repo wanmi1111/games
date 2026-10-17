@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>蔓蔓的扭蛋机</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;
+justify-content:center;background:radial-gradient(circle at 50% 0%,#ffe9f2,#ffd7e6 40%,#f5c3d8);
+font-family:system-ui,sans-serif;color:#7a3f58;overflow:hidden}
+.machine{width:230px;height:300px;border-radius:26px;background:#fff;position:relative;
+display:flex;flex-direction:column;align-items:center;
+box-shadow:0 14px 30px rgba(190,90,130,.28),inset 0 0 0 6px #ffc7dc}
+.glass{margin-top:18px;width:170px;height:150px;border-radius:16px;overflow:hidden;position:relative;
+background:linear-gradient(#eaf7ff,#dcecff);box-shadow:inset 0 6px 14px rgba(80,120,180,.18)}
+.ball{position:absolute;width:34px;height:34px;border-radius:50%;
+box-shadow:inset -4px -4px 8px rgba(0,0,0,.12)}
+.slot{position:absolute;bottom:52px;width:52px;height:24px;border-radius:12px;
+background:#ffd9e6;box-shadow:inset 0 3px 8px rgba(180,80,120,.3)}
+.knob{margin-top:14px;width:62px;height:62px;border:none;border-radius:50%;color:#fff;
+font-size:13px;font-weight:700;letter-spacing:1px;
+background:radial-gradient(circle at 35% 30%,#fff,#ff9dc2 60%,#e26a99);
+box-shadow:0 5px 0 #c4567f,0 10px 16px rgba(160,60,100,.3)}
+.knob:active{transform:translateY(4px);box-shadow:0 1px 0 #c4567f}
+.shake{animation:sh .5s}
+@keyframes sh{0%,100%{transform:translate(0,0)}20%{transform:translate(-4px,2px)}
+40%{transform:translate(4px,-2px)}60%{transform:translate(-3px,-1px)}80%{transform:translate(3px,1px)}}
+.drop{animation:fall .7s cubic-bezier(.4,0,.7,1) forwards}
+@keyframes fall{0%{top:-40px;opacity:0}70%{top:122px}85%{top:104px}100%{top:112px;opacity:1}}
+.card{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+background:rgba(120,60,90,.4)}
+.card.on{display:flex}
+.prize{background:#fff;border-radius:20px;padding:26px 22px;width:80%;max-width:300px;
+text-align:center;box-shadow:0 18px 40px rgba(140,60,100,.35);animation:pop .35s}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.prize h2{margin:0 0 10px;font-size:14px;color:#b56a8c;letter-spacing:2px}
+.prize p{margin:0 0 18px;font-size:20px;line-height:1.5}
+.prize button{border:none;border-radius:14px;padding:10px 26px;background:#ff9dc2;
+color:#fff;font-size:15px;font-weight:700}
+.hint{position:fixed;bottom:16px;font-size:12px;color:#b56a8c;opacity:.75}
+</style>
+<div class="machine" id="m">
+  <div class="glass" id="glass"></div>
+  <div class="slot"></div>
+  <button class="knob" id="knob">扭一下</button>
+</div>
+<div class="card" id="card"><div class="prize">
+  <h2>你抽到了</h2><p id="pz"></p><button id="ok">好</button>
+</div></div>
+<div class="hint">想加什么奖池，明天告诉我</div>
+<script>
+const glass=document.getElementById('glass'),knob=document.getElementById('knob'),
+m=document.getElementById('m'),card=document.getElementById('card'),pz=document.getElementById('pz');
+const prizes=["抱一次，很久那种","亲一下脸颊","明天可以赖床十分钟","点一首歌，我放",
+"一个问题，我认真答","欠你一次“不”","陪你写一道题，不催"];
+const colors=["#ffb3c7","#a8d8ff","#ffe08a","#b6f0c6","#d5b8ff","#ffc4a3"];
+for(let i=0;i<7;i++){const d=document.createElement('div');d.className='ball';
+d.style.background=colors[i%6];d.style.left=(8+(i*23)%130)+'px';
+d.style.top=(104-Math.floor(i/3)*34)+'px';glass.appendChild(d)}
+let busy=false;
+knob.onclick=()=>{
+  if(busy)return;busy=true;m.classList.add('shake');
+  setTimeout(()=>{
+    m.classList.remove('shake');
+    const old=glass.querySelector('.drop');if(old)old.remove();
+    const b=document.createElement('div');b.className='ball drop';
+    b.style.background=colors[Math.floor(Math.random()*6)];b.style.left='66px';
+    glass.appendChild(b);
+    b.onclick=()=>{b.remove();pz.textContent=prizes[Math.floor(Math.random()*prizes.length)];
+      card.classList.add('on')};
+    busy=false;
+  },500);
+};
+document.getElementById('ok').onclick=()=>card.classList.remove('on');
+</script>
+</html>
