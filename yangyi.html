@@ -1,39 +1,39 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>养大一一</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
-html,body{height:100%;overflow:hidden}
-body{background:radial-gradient(circle at 50% 15%,#33253f 0%,#1a1523 55%,#0a0910 100%);color:#f2eaf7;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif;display:flex;justify-content:center}
-#app{width:100%;max-width:430px;display:flex;flex-direction:column;padding:16px 18px 22px;position:relative}
-h1{font-size:21px;font-weight:600;letter-spacing:7px;text-align:center;color:#ffb3d1;text-indent:7px}
-.tip{text-align:center;font-size:11px;color:#8a7f94;margin-top:6px;letter-spacing:.5px;line-height:1.5}
-#stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;position:relative}
-#bubble{background:rgba(255,255,255,.94);color:#3a2b45;font-size:13px;line-height:1.5;padding:10px 15px;border-radius:16px;max-width:240px;text-align:center;position:relative;opacity:0;transform:translateY(8px);transition:.28s;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
-#bubble.on{opacity:1;transform:none}
-#bubble:after{content:"";position:absolute;bottom:-6px;left:50%;margin-left:-6px;border:6px solid transparent;border-top-color:rgba(255,255,255,.94);border-bottom:0}
-#dollWrap{transform:scale(.72);transform-origin:bottom center;transition:transform .8s cubic-bezier(.34,1.56,.64,1)}
-#doll{position:relative;width:150px;display:flex;flex-direction:column;align-items:center;animation:breathe 3.4s ease-in-out infinite}
-@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.body{width:88px;height:64px;background:linear-gradient(180deg,#fbf7f4,#ded3cb);border-radius:28px 28px 20px 20px;margin-top:-16px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.05)}
-.head{width:118px;height:112px;border-radius:50%;background:radial-gradient(circle at 40% 32%,#fdf2e9,#f2decd 68%,#e3cab4);position:relative;z-index:2;box-shadow:0 12px 24px rgba(0,0,0,.4)}
-.hair{position:absolute;top:-10px;left:-6px;width:130px;height:60px;border-radius:66px 66px 10px 10px;background:linear-gradient(180deg,#3b302b,#221b18)}
-.eye{position:absolute;top:58px;width:13px;height:17px;background:#2a211f;border-radius:50%;transition:.3s}
-.eye.l{left:27px}
-.eye.r{right:27px}
-.cheek{position:absolute;top:76px;width:21px;height:12px;background:rgba(255,133,166,.55);border-radius:50%;filter:blur(1.5px);transition:.3s}
-.cheek.l{left:10px}
-.cheek.r{right:10px}
-.mouth{position:absolute;top:78px;left:50%;margin-left:-9px;width:18px;height:10px;border:2.5px solid #2a211f;border-top:0;border-radius:0 0 20px 20px;transition:.3s}
-#dollWrap.s2 .cheek{background:rgba(255,113,153,.72)}
-#dollWrap.s3 .mouth{width:26px;margin-left:-13px;height:14px;border-width:3px}
-.bars{display:flex;flex-direction:column;gap:6px;margin-top:6px}
-.bar{display:flex;align-items:center;gap:9px;font-size:11px;color:#9d92a7}
-.bar b{width:40px;font-weight:400;flex:none;letter-spacing:.5px}
-.track{flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden}
+<！doctype 超文本标记语言>！doctype html>
+<超文本标记语言 朗="zh-CN">html lang="zh-CN">
+<头>头>
+<元 字符集="utf-8">元charset="utf-8">
+<元名称=“视口”内容=“宽度=设备宽度，初始比例=1，最大比例=1，用户可缩放=否”>元名称="视口"内容="宽度=设备宽度，初始比例=1，最大比例=1，用户可缩放=否">
+<标题>养大一一</标题>标题>养大一一</标题>
+<风格>风格>
+*{边缘:0；填充:0；框大小：边境-box；-webkit-tap-highlight-color：透明；-webkit用户选择：无；用户选择：无}{边缘:0;填充:0;箱体尺寸:边框框;-webkit-tap-highlight-color:透明的;-webkit-user-select:没有一个;用户选择:没有一个}
+超文本标记语言，正文{高度：100%；溢出：隐藏},身体{高度:100%;溢出:隐藏的}
+身体{background：径向梯度(圆圈50%15%，#33253f 0%，#1a152355%，#0a0910100%)；颜色：#f2eaf7；字体系列：-苹果系统，BlinkMacSystemFont，"平方SC"，"Noto Sans"SC"，无衬线；显示：柔线；对齐内容：居中}{background：径向梯度(圆在50%15%，#33253f 0%，#1a152355%，#0a0910100%)；颜色：#f2eaf7；字体系列：-apple-system，BlinkMacSystemFont，"Ping方SC"，"Noto sans SC"，无衬线；显示：弯曲；justify-content：中心}
+#应用程序{宽度：100%；最大宽度：430px；显示：flex；flex方向：列；填充：16px18px22px；位置：相对}应用程序{宽度：100%；最大宽度：430PX；显示：弯曲；挠曲方向：柱；填充：16px18px22px；位置：相对的}
+H1{字体大小：21PX；字体-重量：600；字母-间距：7px；文本-align：居中；颜色：#ffb3d1；文本缩进：7px}{字体大小：21PX；字体粗细：600；字母间距：7px；文本对齐：中心；颜色：#ffb3d1；文本缩进：7px}
+.提示{文本对齐：中心；字体大小：11PX；颜色：#8a7f94；上边距：6px；字母间距：.5px；线高：1.5}提示{文本对齐：中心；字体大小：11PX；颜色：#8a7f94；上边距：6px；字母间距：.5px；线高：1.5}
+#阶段{弯曲：1；显示：flex；flex方向：列；对齐项：居中；对齐内容：居中；最小高度：0；位置：相对}阶段{弯曲：1；显示：弯曲；挠曲方向：柱；对齐项目：中心；justify-content：中心；最小高度：0；位置：相对的}
+#泡沫{背景:RGBA(255，255，.94)；颜色：#3a2b45；字体大小：13px；行高：1.5；填充：10px15px；边界半径：16px；最大宽度：240px；文本对齐：中心；位置：相对的；不透明度：0；改变：translateY(8px)；过渡：.28s；底边距：12px；箱形阴影：06PX18PX RGBA(0,0,0,.25)}泡沫{背景:RGBA(255,255,255,.94);颜色：#3a2b45；字体大小：13px；线高：1.5；填充：10px15px；边界半径：16px；最大宽度：240px；文本对齐：中心；位置：相对的；不透明度：0；改变：translateY(8px)；过渡：.28s；底边距：12px；箱形阴影：06px18px RGBA(0,0,0,.25)}
+#泡沫.在……之上{不透明度：1；变换：无}泡沫.在……之上{不透明度:1;改变:没有一个}
+#泡沫：在{content：""之后；位置：绝对；底部：-6px；左侧：50%；左边距：-6px；边框：6px固体透明；边框顶部颜色：RGBA(255，255，255，.94)；边框底部：0}泡沫：在……之后{内容：""；位置：绝对的；底部：-6PX；左：50%；左边距：-6PX；边界：6px固体透明的；边框上色:RGBA(255,255,255,.94);下边框：0}
+#dollWrap{改变：规模(.72)；transform-Roigin：底部中心；过渡：转换.8S立方贝塞尔(.34，1.56，.64，1)}dollWrap{改变：规模(.72)；transform-origin：底部中心；过渡：改变.8S立方比西埃(.34,1.56,.64,1)}
+#玩偶{位置:相对；宽度:150px；显示：柔度；柔度方向：列；对齐项目：居中；动画：呼吸3.4s轻松进出无限}玩偶{位置:相对的;宽度:150PX;显示:弯曲;挠曲方向:柱;对齐项目:中心;动画:呼吸 3.4s 缓进缓出 无限的}
+@keyframesreaving{0%，100%{改变：translateY(0)}50%{改变：translateY(-5PX)}}呼吸{0%，100%{改变：translateY(0)}50%{改变：translateY(-5PX)}}
+。主体{宽度：88px；高度：64px；背景：线性梯度(180度，#fbf7f4，#ded3cb)；边界半径：28px28px20px20px；页边距顶部：-16px；框阴影：插图0-7px0 RGBA(0,0,0,.05)}身体{宽度：88PX；高度：64px；背景：线性梯度(180deg，#fbf7f4，#ded3cb)；边界半径：28PX 28PX20px20px；上边距：-16PX；箱形阴影：插图0-7PX0 RGBA(0,0,0,.05)}
+.head{宽度：118PX；高度：112px；边框-半径：50%；背景：径向梯度(圆形40%32%，#fdf2e9，#f2decd68%，#e3cab4)；位置：相对；z索引：2；框阴影：012px 24px rg ba(0，0，0，.4)}头{宽度：118px；高度：112px；边界半径：50%；背景：径向梯度(圆在40%32%，#fdf2e9，#f2decd68%，#e3cab4)；位置：相对；z指数：2；箱形阴影：012px 24px rg ba(0，0，0，.4)}
+。头发{位置：绝对的；顶部：-10px；左侧：-6px；宽度：130px；高度：60px；边界半径：66px66px10px10px；背景：线性梯度(180度，#3b302b，#221b18)}头发{位置：绝对的；顶端：-10px；左：-6PX；宽度：130PX；高度：60px；边界半径：66PX 66PX10px10px；背景：线性梯度(180deg,#3b302b,#221b18)}
+。眼{位置：绝对；顶部：58px；宽度：13px；高度：17px；背景：#2a211f；边界半径：50%；过渡：.3s}眼{位置：绝对；顶部：58px；宽度：13px；高度：17px；背景：#2a211f；边界半径：50%；过渡：.3s}{位置：absolute；top:58px；width:13px；height:17px；background：#2a211f；border-radius:50%；过渡：.3s}
+.eye.l{左：27px}eye.l{左：27px}
+.eye.r{right:27px}eye.r{right:27px}
+。脸颊{位置：绝对的；顶部：76px；宽度：21px；高度：12px；背景：RGBA(255，133，166，.55)；边界半径：50%；过滤器：模糊(1.5px)；过渡：.3s}脸颊{位置：absolute；top:76px；width:21px；height:12px；background:rgba(255，133，166，.55)；border-radius:50%；过滤器：blur(1.5px)；过渡：.3s}
+脸颊.l{左：10px}脸颊.l{左：10px}
+.脸颊.R{right:10px}脸颊。R{right:10px}
+。口{位置：绝对；顶部：78px；左侧：50%；左边距：-9px；宽度：18px；高度：10px；边框：2.5px实心#2a211f；边界-顶部：0；边界-半径：0020px20px；过渡：0.3s}嘴巴{位置：绝对；上：78px；左：50%；左边距：-9px；宽度：18px；高度：10px；边框：2.5px实体#2a211f；border-top:0；border-roadius:0020px20px；过渡：.3s}
+#dollWrap.S2。脸颊{background:rgba(255，113，153，.72)}dollWrap.S2.脸颊{background:rgba(255，113，153，.72)}
+#dollWrap.S3.口{宽度：26px；左边距：-13px；高度：14px；边框宽度：3px}dollWrap.S3.嘴巴{width:26px；margin-left：-13px；height:14px；border-width:3px}
+。条形图{显示：柔线；柔线方向：列；间距：6px；上边距：6px}横条{display:flex；挠曲方向：column；gap:6px；margin-top:6px}
+。条形图{显示：弯曲；对齐项目：居中；间距：9px；字体大小：11px；颜色：#9d92a7}
+.酒吧B{宽度：40px；字体-重量：400；弯曲：无；字母间距：.5px}
+。音轨{flex:1；高度：7px；背景：rgba(255，255，255，.08)；边界半径：6px；溢出：隐藏}{flex:1；高度：7px；背景：rgba(255，255，255，.08)；边界半径：6px；溢出：隐藏}
 .fill{height:100%;width:50%;border-radius:6px;transition:width .35s}
 .growth{margin-top:13px;display:flex;align-items:center;gap:10px;font-size:11px;color:#c9a4d6;letter-spacing:.5px}
 .gtrack{flex:1;height:10px;background:rgba(255,179,209,.14);border-radius:8px;overflow:hidden}
@@ -173,4 +173,5 @@ document.querySelectorAll('.btn').forEach(function(b){
 render();
 </script>
 </body>
+  <style>:root{color-scheme:dark}</style>
 </html>
