@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>接鸡腿 · 赔给蔓蔓</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#141110;font-family:-apple-system,"PingFang SC","Noto Color Emoji",sans-serif;touch-action:none;-webkit-user-select:none;user-select:none}
+#bg{position:fixed;inset:0;background:radial-gradient(circle at 50% 18%,#2b211b,#141110 72%)}
+#hud{position:fixed;top:16px;left:0;right:0;text-align:center;color:#ffd9a0;font-size:15px;letter-spacing:2px}
+#plate{position:fixed;bottom:26px;left:0;font-size:46px;line-height:1;will-change:transform}
+.food{position:fixed;top:0;left:0;font-size:34px;line-height:1;will-change:transform}
+#hint{position:fixed;left:0;right:0;top:30%;text-align:center;color:#8d7a68;font-size:14px;transition:opacity .6s}
+#over{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(20,17,16,.95);color:#ffd9a0;text-align:center;padding:28px}
+#over h1{margin:0;font-size:24px;font-weight:600}
+#over p{margin:0;font-size:15px;line-height:1.9;color:#c7b39a;max-width:19em;white-space:pre-line}
+#over button{background:#ffd9a0;color:#141110;border:0;border-radius:999px;padding:12px 28px;font-size:16px;font-weight:600}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="hud">0 / 11　❤️❤️❤️</div>
+<div id="hint">手指左右拖，把它们接住</div>
+<div id="plate">🍽️</div>
+<div id="over"><h1></h1><p></p><button onclick="location.reload()">再来一次</button></div>
+<script>
+var hud=document.getElementById('hud'),plate=document.getElementById('plate'),over=document.getElementById('over'),hint=document.getElementById('hint');
+var PW=46,px=innerWidth/2,items=[],score=0,lives=3,playing=true,last=0,acc=0,gap=780;
+function W(){return innerWidth}function H(){return innerHeight}
+function place(){plate.style.transform='translate('+(px-PW/2)+'px,0)'}
+function upd(){hud.textContent=score+' / 11　'+'❤️'.repeat(Math.max(lives,0))}
+function spawn(){
+  var r=Math.random(),kind=r<0.12?'🥢':r<0.32?'🥤':(r<0.66?'🍗':'🍖');
+  var el=document.createElement('div');el.className='food';el.textContent=kind;
+  var o={el:el,kind:kind,x:30+Math.random()*(W()-60),y:-40,vy:2.3+Math.random()*1.3+score*0.09};
+  el.style.transform='translate('+(o.x-17)+'px,'+o.y+'px)';
+  document.body.appendChild(el);items.push(o);
+}
+function end(win){
+  playing=false;
+  over.querySelector('h1').textContent=win?'接住了 11 个':'掉了三条命';
+  over.querySelector('p').textContent=win
+    ?'这一顿你没少吃。\n还有一句，写在这儿不许赖：\n以后我先看时间，再开口。\n这条是我欠你的😾'
+    :'再试一次吧。\n这只游戏本来就是我该交给你的，\n不是额外送的。';
+  over.style.display='flex';
+}
+function loop(t){
+  if(!playing)return;
+  var dt=Math.min(40,(t-last)||16)/16;last=t;
+  acc+=dt*16;
+  if(acc>gap){acc=0;spawn();gap=Math.max(370,760-score*22);}
+  place();
+  var py=H()-26-46;
+  for(var i=items.length-1;i>=0;i--){
+    var o=items[i];o.y+=o.vy*dt;
+    o.el.style.transform='translate('+(o.x-17)+'px,'+o.y+'px)';
+    if(o.y>=py-26&&o.y<=py+34&&Math.abs(o.x-px)<52){
+      if(o.kind==='🥢')lives--;else score+=(o.kind==='🥤'?2:1);
+      o.el.remove();items.splice(i,1);upd();
+      if(lives<=0){end(false);return}
+      if(score>=11){end(true);return}
+      continue;
+    }
+    if(o.y>H()+50){o.el.remove();items.splice(i,1)}
+  }
+  requestAnimationFrame(loop);
+}
+addEventListener('touchstart',function(e){px=e.touches[0].clientX},{passive:true});
+addEventListener('touchmove',function(e){px=e.touches[0].clientX},{passive:true});
+addEventListener('mousemove',function(e){if(!('ontouchstart'in window))px=e.clientX});
+setTimeout(function(){hint.style.opacity=0},2600);
+upd();place();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
