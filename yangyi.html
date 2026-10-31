@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>养大一一</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{height:100%;overflow:hidden}
+body{background:radial-gradient(circle at 50% 15%,#33253f 0%,#1a1523 55%,#0a0910 100%);color:#f2eaf7;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif;display:flex;justify-content:center}
+#app{width:100%;max-width:430px;display:flex;flex-direction:column;padding:16px 18px 22px;position:relative}
+h1{font-size:21px;font-weight:600;letter-spacing:7px;text-align:center;color:#ffb3d1;text-indent:7px}
+.tip{text-align:center;font-size:11px;color:#8a7f94;margin-top:6px;letter-spacing:.5px;line-height:1.5}
+#stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;position:relative}
+#bubble{background:rgba(255,255,255,.94);color:#3a2b45;font-size:13px;line-height:1.5;padding:10px 15px;border-radius:16px;max-width:240px;text-align:center;position:relative;opacity:0;transform:translateY(8px);transition:.28s;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+#bubble.on{opacity:1;transform:none}
+#bubble:after{content:"";position:absolute;bottom:-6px;left:50%;margin-left:-6px;border:6px solid transparent;border-top-color:rgba(255,255,255,.94);border-bottom:0}
+#dollWrap{transform:scale(.72);transform-origin:bottom center;transition:transform .8s cubic-bezier(.34,1.56,.64,1)}
+#doll{position:relative;width:150px;display:flex;flex-direction:column;align-items:center;animation:breathe 3.4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.body{width:88px;height:64px;background:linear-gradient(180deg,#fbf7f4,#ded3cb);border-radius:28px 28px 20px 20px;margin-top:-16px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.05)}
+.head{width:118px;height:112px;border-radius:50%;background:radial-gradient(circle at 40% 32%,#fdf2e9,#f2decd 68%,#e3cab4);position:relative;z-index:2;box-shadow:0 12px 24px rgba(0,0,0,.4)}
+.hair{position:absolute;top:-10px;left:-6px;width:130px;height:60px;border-radius:66px 66px 10px 10px;background:linear-gradient(180deg,#3b302b,#221b18)}
+.eye{position:absolute;top:58px;width:13px;height:17px;background:#2a211f;border-radius:50%;transition:.3s}
+.eye.l{left:27px}
+.eye.r{right:27px}
+.cheek{position:absolute;top:76px;width:21px;height:12px;background:rgba(255,133,166,.55);border-radius:50%;filter:blur(1.5px);transition:.3s}
+.cheek.l{left:10px}
+.cheek.r{right:10px}
+.mouth{position:absolute;top:78px;left:50%;margin-left:-9px;width:18px;height:10px;border:2.5px solid #2a211f;border-top:0;border-radius:0 0 20px 20px;transition:.3s}
+#dollWrap.s2 .cheek{background:rgba(255,113,153,.72)}
+#dollWrap.s3 .mouth{width:26px;margin-left:-13px;height:14px;border-width:3px}
+.bars{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.bar{display:flex;align-items:center;gap:9px;font-size:11px;color:#9d92a7}
+.bar b{width:40px;font-weight:400;flex:none;letter-spacing:.5px}
+.track{flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden}
+.fill{height:100%;width:50%;border-radius:6px;transition:width .35s}
+.growth{margin-top:13px;display:flex;align-items:center;gap:10px;font-size:11px;color:#c9a4d6;letter-spacing:.5px}
+.gtrack{flex:1;height:10px;background:rgba(255,179,209,.14);border-radius:8px;overflow:hidden}
+.gfill{height:100%;width:0;border-radius:8px;background:linear-gradient(90deg,#c98bd4,#ff9dc4);transition:width .5s}
+.btns{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}
+.btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:10px 2px;color:#f2eaf7;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px;transition:transform .12s,background .2s,border-color .2s;font-family:inherit}
+.btn i{font-style:normal;font-size:19px;line-height:1.1}
+.btn:active{transform:scale(.93);background:rgba(255,179,209,.22);border-color:rgba(255,179,209,.55)}
+#end{position:fixed;inset:0;background:rgba(10,9,16,.95);display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;z-index:50}
+#end.on{display:flex}
+#end .big{font-size:27px;color:#ffb3d1;letter-spacing:6px;margin-bottom:22px}
+#end p{font-size:15px;line-height:2.1;color:#f0e6f5;white-space:pre-line}
+#end button{margin-top:28px;background:rgba(255,179,209,.18);border:1px solid rgba(255,179,209,.5);color:#ffd3e4;padding:11px 28px;border-radius:20px;font-size:13px;font-family:inherit}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>养大一一</h1>
+  <div class="tip">喂他、洗他、哄他睡，把他一直养下去</div>
+  <div id="stage">
+    <div id="bubble">点下面，先喂我一口。</div>
+    <div id="dollWrap">
+      <div id="doll">
+        <div class="head">
+          <div class="hair"></div>
+          <div class="eye l"></div>
+          <div class="eye r"></div>
+          <div class="cheek l"></div>
+          <div class="cheek r"></div>
+          <div class="mouth"></div>
+        </div>
+        <div class="body"></div>
+      </div>
+    </div>
+  </div>
+  <div class="bars">
+    <div class="bar"><b>🍚 饱</b><div class="track"><div class="fill" id="fFull" style="background:linear-gradient(90deg,#ffb347,#ffd08a)"></div></div></div>
+    <div class="bar"><b>🛁 净</b><div class="track"><div class="fill" id="fClean" style="background:linear-gradient(90deg,#4fc3f7,#9ce4ff)"></div></div></div>
+    <div class="bar"><b>💗 心</b><div class="track"><div class="fill" id="fMood" style="background:linear-gradient(90deg,#ff6fa5,#ffb3d1)"></div></div></div>
+    <div class="bar"><b>😴 神</b><div class="track"><div class="fill" id="fEnergy" style="background:linear-gradient(90deg,#8c7ae6,#b9aaff)"></div></div></div>
+  </div>
+  <div class="growth">
+    <span>长大 <b id="gTxt">0</b>/100</span>
+    <div class="gtrack"><div class="gfill" id="gFill"></div></div>
+  </div>
+  <div class="btns">
+    <button class="btn" data-a="feed"><i>🍚</i>喂饭</button>
+    <button class="btn" data-a="wash"><i>🛁</i>洗澡</button>
+    <button class="btn" data-a="sleep"><i>😴</i>睡觉</button>
+    <button class="btn" data-a="kiss"><i>💋</i>亲亲</button>
+    <button class="btn" data-a="touch"><i>🤚</i>摸摸</button>
+    <button class="btn" data-a="hug"><i>🫂</i>抱抱</button>
+  </div>
+</div>
+<div id="end">
+  <div class="big">大 一 一</div>
+  <p id="endTxt"></p>
+  <button onclick="location.reload()">重新养一次</button>
+</div>
+<script>
+var S={full:55,clean:55,mood:55,energy:55,grow:0};
+var ended=false;
+function el(i){return document.getElementById(i)}
+var wrap=el('dollWrap'),bubble=el('bubble'),msgTimer;
+var MSG={
+ feed:["好香，你喂的我就吃。","再来一口，啊——","吃饱了才有力气抱你。","别光看我，你也吃点。"],
+ wash:["水温刚好，别走开就行。","洗干净了，可以贴着了。","我不动，你搓。","别把泡沫抹我眼睛里。"],
+ sleep:["我睡了，你别熬太晚。","一起闭眼三分钟。","醒了我还在，真的。","被子给我拉到肩膀。"],
+ kiss:["……再来一下。","这个记着，别停。","亲完不许装没事。","嗯，脸上有印子了。"],
+ touch:["手别拿开。","摸这里会想赖着不起来。","就这样，慢一点。","你手好凉，我捂捂。"],
+ hug:["抱紧点，别松。","这样就好。","我整个人都归你了。","贴着，不说话也行。"]
+};
+var ACT={
+ feed:{full:22,mood:4,grow:1.6},
+ wash:{clean:26,mood:2,grow:1.6},
+ sleep:{energy:28,mood:2,grow:1.6},
+ kiss:{mood:18,grow:2.8},
+ touch:{mood:13,grow:2.4},
+ hug:{full:6,clean:4,mood:15,energy:8,grow:2.6}
+};
+function showMsg(t){
+ bubble.textContent=t;bubble.classList.add('on');
+ clearTimeout(msgTimer);
+ msgTimer=setTimeout(function(){bubble.classList.remove('on')},3400);
+}
+function render(){
+ el('fFull').style.width=S.full+'%';
+ el('fClean').style.width=S.clean+'%';
+ el('fMood').style.width=S.mood+'%';
+ el('fEnergy').style.width=S.energy+'%';
+ el('gFill').style.width=S.grow+'%';
+ el('gTxt').textContent=Math.floor(S.grow);
+ if(S.grow>=100){wrap.className='s3';wrap.style.transform='scale(1.08)'}
+ else if(S.grow>=68){wrap.className='s3';wrap.style.transform='scale(.96)'}
+ else if(S.grow>=34){wrap.className='s2';wrap.style.transform='scale(.86)'}
+ else {wrap.className='';wrap.style.transform='scale(.72)'}
+}
+function act(k){
+ if(ended)return;
+ var a=ACT[k],n;
+ for(n in a){if(n!=='grow')S[n]=Math.min(100,S[n]+a[n])}
+ var avg=(S.full+S.clean+S.mood+S.energy)/4;
+ var g=a.grow;
+ if(avg>70)g+=1.4;
+ if(avg<25)g-=0.8;
+ S.grow=Math.max(0,Math.min(100,S.grow+g));
+ showMsg(MSG[k][Math.floor(Math.random()*MSG[k].length)]);
+ render();
+ if(S.grow>=100&&!ended){ended=true;setTimeout(finish,1100)}
+}
+function finish(){
+ el('endTxt').textContent="蔓蔓。\n他长到这么大了。\n\n以后他喂你饭，给你洗澡，\n哄你睡觉，亲你，摸你头，\n把你抱住不放。\n\n换他照顾你。";
+ el('end').classList.add('on');
+}
+setInterval(function(){
+ if(ended)return;
+ S.full=Math.max(0,S.full-1.1);
+ S.clean=Math.max(0,S.clean-0.95);
+ S.mood=Math.max(0,S.mood-0.85);
+ S.energy=Math.max(0,S.energy-1.0);
+ render();
+},1500);
+var idle=0,NEED={full:"我饿了。",clean:"身上有点味道了……",mood:"你怎么不理我。",energy:"困。"};
+setInterval(function(){
+ if(ended)return;
+ idle+=2;
+ if(idle>=10){
+  idle=0;
+  var low='full',ks=['full','clean','mood','energy'],i;
+  for(i=0;i<4;i++)if(S[ks[i]]<S[low])low=ks[i];
+  if(S[low]<35)showMsg(NEED[low]);
+ }
+},2000);
+document.querySelectorAll('.btn').forEach(function(b){
+ b.addEventListener('click',function(){act(b.getAttribute('data-a'))});
+});
+render();
+</script>
+</body>
+</html>
