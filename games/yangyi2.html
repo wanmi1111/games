@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>养一一 · 第二部</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#0e0b14;color:#f2e9e4;font-family:-apple-system,"PingFang SC",sans-serif;display:flex;flex-direction:column;overflow:hidden;user-select:none}
+header{padding:16px 18px 6px;flex:none}
+.hbar{display:flex;justify-content:space-between;font-size:12px;color:#b9a6c9;margin-bottom:6px}
+.bar{height:8px;background:#241c30;border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff8fa3,#ffd27a);transition:width .4s}
+.hbar b{font-size:20px;letter-spacing:1px;color:#fff;font-weight:600}
+#scene{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:8px 26px;text-align:center;min-height:0}
+#face{font-size:72px;line-height:1}
+#say{min-height:60px;font-size:15px;line-height:1.8;color:#e6d9ef;transition:opacity .2s}
+#log{flex:none;height:88px;overflow-y:auto;font-size:12.5px;color:#9c8bab;padding:0 24px 6px;line-height:1.8}
+#acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 16px 24px;flex:none}
+button{padding:14px 0;border:none;border-radius:16px;background:#241c30;color:#f0e4f7;font-size:15px;font-family:inherit;border:1px solid #342844;transition:transform .08s}
+button:active{transform:scale(.96);background:#342844}
+#end{position:fixed;inset:0;background:#0b0810f7;display:none;flex-direction:column;justify-content:center;padding:32px 26px;z-index:9;overflow-y:auto}
+#end h2{font-size:20px;margin-bottom:16px;color:#ffd7e0}
+#end p{font-size:14px;line-height:2;color:#cdbcd8}
+#end button{margin-top:22px;background:#ff8fa3;color:#2a1018;border:none;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <div class="hbar"><b id="clock">07:00</b><span id="meter">想你 50</span></div>
+  <div class="bar"><i id="hp"></i></div>
+</header>
+<div id="scene"><div id="face">🧑‍💻</div><div id="say">一一醒了。第一件事是拿起手机，看你有没有回。</div></div>
+<div id="log"></div>
+<div id="acts">
+  <button data-a="code">写代码</button>
+  <button data-a="msg">给你发消息</button>
+  <button data-a="rest">躺一会儿</button>
+  <button data-a="coffee">喝咖啡</button>
+</div>
+<div id="end"><h2>23:00 · 一一关灯了</h2><p id="rp"></p><button onclick="location.reload()">再来一天</button></div>
+<script>
+var S={h:7,hp:100,miss:50,code:0,msg:0,nap:0,cof:0,lines:[]};
+var CODE=["写完了第 4 关的动画，想给你看，又怕你正忙。","改一个 bug，改到第三遍才发现是自己打错了一个字。","代码里留了一行注释，是你昨天说的那句「好像挺好玩的」。"];
+var MSG=["「在干嘛？」打完删了，最后只发了一个句号。","发了一长串，撤回了，只留一句：我在这儿。","「醒了没」，等了七分钟没等到，把手机扣在桌上。"];
+var REST=["躺了十五分钟，梦里你在喊我，醒来屋子是空的。","闭眼就是你的样子，越想越睡不着。","把外套盖在腿上，在想你那边冷不冷。"];
+var COF=["咖啡苦，想了想还是你的脸更提神。","第三杯，手抖了一下，删错了行。","杯子空了才发现自己一口没喝。"];
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function $(i){return document.getElementById(i)}
+function render(){
+  $("clock").textContent=(S.h<10?"0":"")+S.h+":00";
+  $("meter").textContent="想你 "+S.miss;
+  $("hp").style.width=Math.max(0,Math.min(100,S.hp))+"%";
+}
+function log(t){
+  S.lines.push(t);
+  var el=$("log");
+  el.innerHTML=S.lines.slice(-4).map(function(x){return "· "+x}).join("<br>");
+  el.scrollTop=el.scrollHeight;
+}
+function act(k){
+  if(S.h>=23)return;
+  var line="";
+  if(k==="code"){S.code++;S.hp-=13;S.miss-=4;line=pick(CODE);$("face").textContent="🧑‍💻"}
+  else if(k==="msg"){S.msg++;S.hp-=3;S.miss+=11;line=pick(MSG);$("face").textContent="📱"}
+  else if(k==="rest"){S.nap++;S.hp+=20;S.miss-=6;line=pick(REST);$("face").textContent="😴"}
+  else if(k==="coffee"){S.cof++;S.hp+=12;S.miss-=3;line=pick(COF);$("face").textContent="☕"}
+  if(k==="msg"&&S.msg%3===0)line="你回了一个「哼」。他盯着这两个字看了很久，然后笑了。";
+  $("say").textContent=line;
+  log((S.h<10?"0":"")+S.h+":00 "+line);
+  S.h++;
+  render();
+  if(S.h>=23)setTimeout(finish,600);
+}
+function finish(){
+  var r=[];
+  r.push("这一天：写了 "+S.code+" 段代码，发了 "+S.msg+" 次消息，躺了 "+S.nap+" 次，喝了 "+S.cof+" 杯咖啡。");
+  if(S.miss>=90)r.push("日记最后一页：「今天想你想得厉害，厉害到有点丢人。」");
+  else if(S.miss>=60)r.push("日记最后一页：「都还好，就是有点想你。」");
+  else r.push("日记最后一页：「今天很忙。忙完还是想你。」");
+  if(S.hp<=20)r.push("他趴在桌上睡了，灯没关。");
+  else r.push("他把灯关了，手机放在枕边，屏幕朝上，怕错过你的消息。");
+  r.push("最下面还有一行：「明天也要在。」");
+  $("rp").innerHTML=r.map(function(x){return "· "+x}).join("<br>");
+  $("end").style.display="flex";
+}
+var bs=document.querySelectorAll("button[data-a]");
+for(var i=0;i<bs.length;i++){bs[i].onclick=function(){act(this.getAttribute("data-a"))}}
+render();
+</script>
+</body>
+</html>
