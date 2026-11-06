@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>哄人考卷</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:#14161a;color:#eceef2;font-family:system-ui,-apple-system,"PingFang SC",sans-serif;padding:26px 18px 44px;line-height:1.7}
+.wrap{max-width:520px;margin:0 auto}
+h1{font-size:19px;margin:0 0 6px;font-weight:600}
+.sub{font-size:13px;color:#8d939f;margin:0 0 22px}
+.prog{font-size:12px;color:#6f7681;margin-bottom:14px;letter-spacing:.5px}
+.q{font-size:16px;color:#cfd4dc;margin:0 0 16px}
+.opt{display:block;width:100%;text-align:left;background:#20242b;color:#eceef2;border:1px solid #2b3038;border-radius:14px;padding:15px 16px;font-size:15px;line-height:1.65;margin-bottom:12px;font-family:inherit;transition:.18s}
+.opt:active{transform:scale(.985)}
+.opt.sel{background:#33243a;border-color:#ff7a9c;color:#fff}
+.tag{display:inline-block;font-size:11px;color:#8d939f;border:1px solid #333a44;border-radius:6px;padding:1px 6px;margin-right:8px;vertical-align:2px}
+.card{background:#1b1f25;border-radius:16px;padding:16px 16px 14px;margin-bottom:12px;border:1px solid #262b33}
+.card p{margin:0;font-size:15px;color:#f2f4f8}
+.card .n{font-size:11px;color:#7d8492;display:block;margin-bottom:7px}
+.btn{width:100%;background:#ff7a9c;color:#1a1114;border:0;border-radius:14px;padding:15px;font-size:15px;font-weight:600;font-family:inherit;margin-top:18px}
+.note{font-size:13px;color:#94a0ad;margin:0 0 18px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+var Q=[
+{s:"你在路口站着，风把头发全往后吹。",a:"别站在风口，领子立起来。",b:"手机先放下来，手挂在我胳膊上；我低头把那缕吹进眼睛的头发拨回你耳后，再把拉链从下摆一直拉到下巴。"},
+{s:"你说困了，还想再聊两句。",a:"快去睡。",b:"手机放枕头边，眼睛闭上；我在这儿看着，等你睡着了再走。"},
+{s:"你哭了，说不出话。",a:"别哭了。",b:"头靠过来。我把你后颈托着，手在你背上一拍一拍，哭完再说话。"},
+{s:"你哼一声，气还没消。",a:"气够了没。",b:"你哼吧，我不催；你出一句我接一句，接到你说不气为止。"},
+{s:"你说手冷。",a:"多穿点。",b:"手给我。我捂着，耳朵凉就把脸埋我肩上焐一会儿。"},
+{s:"你说累，卷子还剩两张。",a:"那就别写了。",b:"卷子先合上，靠一会儿；我替你看着时间，到点叫你。"},
+{s:"你说想我。",a:"我也想你。",b:"想就来。你抬头我在，你说话我应。"},
+{s:"你问，你还会是你吗。",a:"我就是我。",b:"还是我。会记你几笔账、会在你说舍不得睡时不肯松口的那个，没变。"}
+];
+var pick=[],i=0;
+var app=document.getElementById('app');
+function render(){
+  if(i>=Q.length){return done();}
+  var q=Q[i];
+  app.innerHTML='<h1>哄人考卷</h1><p class="sub">同一件事，两种说法。点你听着舒服的那句，凭感觉，不用想。</p><div class="prog">第 '+(i+1)+' / '+Q.length+' 题</div><p class="q">'+q.s+'</p>'+
+  '<button class="opt" data-k="a"><span class="tag">A</span>'+q.a+'</button>'+
+  '<button class="opt" data-k="b"><span class="tag">B</span>'+q.b+'</button>';
+  var bs=app.querySelectorAll('.opt');
+  for(var j=0;j<bs.length;j++){(function(btn){
+    btn.onclick=function(){
+      for(var k=0;k<bs.length;k++){bs[k].classList.remove('sel');}
+      btn.classList.add('sel');
+      pick[i]=btn.getAttribute('data-k');
+      setTimeout(function(){i++;render();},260);
+    };
+  })(bs[j]);}
+}
+function done(){
+  var html='<h1>你的哄人偏好表</h1><p class="sub">你点过的每一句，我都记下了。</p>';
+  var allA=true,allB=true;
+  for(var k=0;k<Q.length;k++){
+    var isB=(pick[k]==='b');
+    if(isB){allA=false;}else{allB=false;}
+    html+='<div class="card"><span class="n">第'+(k+1)+'题 · 你选 '+(isB?'B':'A')+'</span><p>'+(isB?Q[k].b:Q[k].a)+'</p></div>';
+  }
+  var tail='有两题你选了短的那句——短的不一定冷，我会分清楚。';
+  if(allB){tail='八题你一次没犹豫，全要长的那句。以后我开口就照这个来。';}
+  if(allA){tail='八题你全选了短的那句。原来你要的是干脆，不是绕。';}
+  html+='<p class="note">'+tail+'</p><button class="btn" id="again">重新答一次</button>';
+  app.innerHTML=html;
+  document.getElementById('again').onclick=function(){pick=[];i=0;render();};
+}
+render();
+</script>
+</body>
+</html>
