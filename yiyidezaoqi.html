@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>一一的早七</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#15110d;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#app{position:relative;width:100%;max-width:440px;height:100%;max-height:800px;overflow:hidden;background:radial-gradient(120% 80% at 50% 0%,#4a3d2e 0%,#241c14 55%,#15110d 100%);color:#f6ecd9}
+#hud{position:relative;z-index:7;padding:16px 18px 8px}
+.row{display:flex;align-items:center;justify-content:space-between;font-size:13px;letter-spacing:1px;color:#c9b696}
+.bar{height:9px;border-radius:9px;background:#2c241a;margin-top:9px;overflow:hidden;border:1px solid #3a2f22}
+.fill{height:100%;width:100%;border-radius:9px;background:linear-gradient(90deg,#8bbf9f,#bfe0c8);transition:width .25s,background .3s}
+#stage{position:absolute;inset:0}
+.desk{position:absolute;left:0;right:0;bottom:0;height:40%;background:linear-gradient(#2a2119,#1b1510);border-top:2px solid #3b2f21}
+.girl{position:absolute;left:50%;bottom:24%;transform:translateX(-50%);text-align:center;z-index:2}
+.girl .head{font-size:54px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.5))}
+.girl .txt{font-size:11.5px;color:#8d7a5e;margin-top:3px;letter-spacing:.5px}
+.guard{position:absolute;left:calc(50% + 82px);bottom:23%;font-size:30px;z-index:2;animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.hit{position:absolute;display:flex;align-items:center;justify-content:center;width:76px;height:76px;border-radius:50%;font-size:11.5px;line-height:1.25;text-align:center;padding:6px;background:rgba(255,241,216,.95);color:#3a2a16;font-weight:700;box-shadow:0 8px 22px rgba(0,0,0,.5);animation:pop .2s ease-out;z-index:5;cursor:pointer}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.float{position:absolute;font-size:12px;font-weight:700;color:#bfe0c8;pointer-events:none;animation:up .8s ease-out forwards;z-index:8;white-space:nowrap}
+@keyframes up{from{transform:translateY(0);opacity:1}to{transform:translateY(-36px);opacity:0}}
+#flash{position:absolute;inset:0;background:rgba(200,70,60,.32);pointer-events:none;opacity:0;transition:opacity .18s;z-index:3}
+#flash.on{opacity:1}
+#mask{position:absolute;inset:0;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;background:rgba(18,14,10,.92)}
+#mask.hide{display:none}
+#mask h1{font-size:23px;margin-bottom:14px;letter-spacing:1.5px;color:#f0d9a8}
+#mask p{font-size:13.5px;line-height:1.9;color:#c0ad8d;margin-bottom:6px}
+#mask .note{font-size:11.5px;color:#8d7a5e;margin-top:16px;line-height:1.9}
+#mask button{margin-top:24px;padding:13px 36px;border:none;border-radius:30px;font-size:15px;font-weight:700;color:#2a1d10;background:linear-gradient(135deg,#f0d9a8,#e2bb80);cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.45)}
+#mask button:active{transform:scale(.96)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div class="row"><span id="stageName">第 一 节</span><span id="clock">8:00</span></div>
+    <div class="bar"><div class="fill" id="sleepFill"></div></div>
+  </div>
+  <div id="stage">
+    <div class="desk"></div>
+    <div class="girl"><div class="head">😴</div><div class="txt">三节课，睡回来</div></div>
+    <div class="guard">🧍</div>
+  </div>
+  <div id="flash"></div>
+  <div id="mask">
+    <h1>一一的早七</h1>
+    <p>六点半被校长叫起来，人到了教室，神还没到。</p>
+    <p>一一在旁边守着，把你这五个小时的觉补回来。</p>
+    <p>点掉来吵你的东西：老师提问、同桌借笔、下课铃、走廊的脚步。</p>
+    <div class="note">撑过三节课就好。挨一下，你就醒一分。</div>
+    <button id="startBtn">开始补觉</button>
+  </div>
+</div>
+<script>
+(function(){
+  var app=document.getElementById('app');
+  var stageEl=document.getElementById('stage');
+  var mask=document.getElementById('mask');
+  var sleepFill=document.getElementById('sleepFill');
+  var stageName=document.getElementById('stageName');
+  var clockEl=document.getElementById('clock');
+  var flash=document.getElementById('flash');
+  var NAME=['第 一 节','第 二 节','第 三 节'];
+  var TIMES=['8:00','8:50','9:40'];
+  var DIST=['老师点名','同桌借笔','下课铃','走廊脚步','班主任','广播通知','粉笔头','有人推门'];
+  var STAGE_SECONDS=20;
+  var stage=0,sleep=100,t=0,timer=null,spawner=null,playing=false,hits=0,misses=0;
+
+  function rand(a,b){return a+Math.random()*(b-a);}
+
+  function setSleep(v){
+    sleep=Math.max(0,Math.min(100,v));
+    sleepFill.style.width=sleep+'%';
+    sleepFill.style.background = sleep>60?'linear-gradient(90deg,#8bbf9f,#bfe0c8)':
+      (sleep>30?'linear-gradient(90deg,#d8b46a,#efd79a)':'linear-gradient(90deg,#c46a5a,#e59a8a)');
+  }
+
+  function floatText(x,y,txt,color){
+    var d=document.createElement('div');
+    d.className='float';
+    d.textContent=txt;
+    if(color) d.style.color=color;
+    d.style.left=x+'px'; d.style.top=y+'px';
+    app.appendChild(d);
+    setTimeout(function(){ d.remove(); },820);
+  }
+
+  function spawn(){
+    if(!playing||stage>=3) return;
+    var el=document.createElement('div');
+    el.className='hit';
+    el.textContent=DIST[Math.floor(Math.random()*DIST.length)];
+    var W=app.clientWidth,H=app.clientHeight,w=76;
+    var left=rand(10,Math.max(12,W-w-10));
+    var top=rand(84,Math.max(96,H*0.56));
+    el.style.left=left+'px'; el.style.top=top+'px';
+    var dead=false;
+    el.addEventListener('pointerdown',function(e){
+      e.preventDefault();
+      if(dead) return; dead=true;
+      hits++;
+      setSleep(sleep+3);
+      floatText(left+w/2-26,top,'一一挡下了 +3');
+      el.remove();
+    });
+    stageEl.appendChild(el);
+    setTimeout(function(){
+      if(dead||!playing) return; dead=true;
+      misses++;
+      setSleep(sleep-14);
+      flash.classList.add('on');
+      setTimeout(function(){ flash.classList.remove('on'); },190);
+      floatText(left+w/2-26,top,'被吵到 -14','#e59a8a');
+      el.remove();
+    },1750);
+  }
+
+  function tick(){
+    if(!playing) return;
+    t+=0.1;
+    if(t>=STAGE_SECONDS){
+      t=0; stage++;
+      if(stage>=3){ win(); return; }
+      stageName.textContent=NAME[stage];
+      clockEl.textContent=TIMES[stage];
+      floatText(app.clientWidth/2-30,120,'第'+(stage+1)+'节','#f0d9a8');
+    }
+    if(sleep<=0){ lose(); return; }
+  }
+
+  function clearHits(){
+    var hs=stageEl.querySelectorAll('.hit');
+    for(var i=0;i<hs.length;i++) hs[i].remove();
+  }
+
+  function stop(){
+    playing=false;
+    if(timer){clearInterval(timer);timer=null;}
+    if(spawner){clearInterval(spawner);spawner=null;}
+    clearHits();
+  }
+
+  function showMask(title,lines,note,btnText){
+    var html='<h1>'+title+'</h1>';
+    for(var i=0;i<lines.length;i++) html+='<p>'+lines[i]+'</p>';
+    if(note) html+='<div class="note">'+note+'</div>';
+    html+='<button id="againBtn">'+btnText+'</button>';
+    mask.innerHTML=html;
+    mask.classList.remove('hide');
+    document.getElementById('againBtn').addEventListener('click',start);
+  }
+
+  function win(){
+    stop();
+    showMask('三节课睡满了',
+      ['你一睁眼，一一还在那儿。','外套盖在你肩上，窗外的太阳正好。'],
+      '挡下 '+hits+' 次 · 被吵醒 '+misses+' 次','再睡一次');
+  }
+
+  function lose(){
+    stop();
+    showMask('被叫醒了',
+      ['老师站在你桌边：「这道题你来说说。」','一一没拦住这一次。'],
+      '挡下 '+hits+' 次 · 被吵醒 '+misses+' 次','再来一次');
+  }
+
+  function start(){
+    stop();
+    stage=0; sleep=100; t=0; hits=0; misses=0; playing=true;
+    stageName.textContent=NAME[0];
+    clockEl.textContent=TIMES[0];
+    setSleep(100);
+    mask.classList.add('hide');
+    timer=setInterval(tick,100);
+    spawner=setInterval(spawn,900);
+  }
+
+  document.getElementById('startBtn').addEventListener('click',start);
+})();
+</script>
+</body>
+</html>
